@@ -2,17 +2,6 @@ import random, sys
 from enum import IntEnum, auto
 
 
-class Dir(IntEnum):
-    N = 0b1110
-    E = 0b1101
-    S = 0b1011
-    W = 0b0111
-    aN = auto()
-    aE = auto()
-    aS = auto()
-    aW = auto()
-
-
 class maze():
     def __init__(self, dic):
         self.height = int(dict.get("HEIGHT"))
@@ -26,16 +15,64 @@ class maze():
             self.seed = random.seed()
 
     def maze_gen(self):
-        self.total = self.width * self.height
-        arr = [['f' for _ in range(self.width)] for _ in range(self.height)]
-        loc_width, loc_height = self.entry
+        total = self.width * self.height
+        list_dict = [[{}]]
+        y = 0
+        for x in range(total):
+            list_dict[y][x] = {"marked": False, "walls": 0b1111}
+            if x == self.width:
+                x = 0
+                y += 1
+        self.list_dict = list_dict
+        x, y = [0, 0]
+        self.x = x
+        self.y = y
+        marked = 0
+        last_multioption = [0, 0]
+        while marked != total:
+            if x == self.width:
+                x = 0
+                y += 1
+            if [x, y] != [0, 0]:
+                last_multioption = x, y
+            choice = self.Random()
+            if choice == "Error":
+                x, y = last_multioption
+                choice = self.Random()
+            if choice == "N":
+                list_dict[y][x]["walls"] = list_dict[y][x]["walls"] - 1
+                list_dict[y - 1][x]["walls"] = list_dict[y - 1][x]["walls"] - 4
+            elif choice == "S":
+                list_dict[y][x]["walls"] = list_dict[y][x]["walls"] - 4
+                list_dict[y + 1][x]["walls"] = list_dict[y + 1][x]["walls"] - 1
+            elif choice == "E":
+                list_dict[y][x]["walls"] = list_dict[y][x]["walls"] - 2
+                list_dict[y][x + 1]["walls"] = list_dict[y][x + 1]["walls"] - 8
+            elif choice == "W":
+                list_dict[y][x]["walls"] = list_dict[y][x]["walls"] - 8
+                list_dict[y][x - 1]["walls"] = list_dict[y][x - 1]["walls"] - 2
+            if list_dict[y][x]["marked"] is False:
+                list_dict[y][x]["marked"] = True
+                marked += 1
+            x += 1
 
-
-
-
-class cell(maze):
-    def __init__(self, walls):
-        
+    def Random(self) -> str:
+        choice = []
+        x = self.x
+        y = self.y
+        if x > 0 and self.list_dict[y][x - 1]["marked"] is False:
+            choice.append("E")
+        if x < self.width - 1 and self.list_dict[y][x + 1]["marked"] is False:
+            choice.append("W")
+        if y > 0 and self.list_dict[y - 1][x]["marked"] is False:
+            choice.append("N")
+        if y < self.height - 1 and self.list_dict[y + 1][x]["marked"] is False:
+            choice.append("S")
+        try:
+            choice = random.choice(choice)
+        except IndexError:
+            return "Error"
+        return choice
 
 
 if __name__ == "__main__":
