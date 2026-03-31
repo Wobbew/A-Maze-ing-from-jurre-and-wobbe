@@ -1,5 +1,5 @@
 import subprocess
-
+import new_ter
 def parser():
     maze = []
     entry = None
@@ -82,8 +82,9 @@ def place_MLX(walls):
     pass
 
 
-def visualing():
+def tmp_name():
     maze, entry, exit_pos, path = parser()
+    ascii = True
     HEIGHT = len(maze)
     WIDTH = len(maze[0])
     vis_maze = []
@@ -100,6 +101,7 @@ def visualing():
             vis_maze = render_cell(maze[i][j], vis_maze, i, j)
             j = j + 1
         i = i + 1
-    for row in vis_maze:
-        line = ''.join(row)
-        print(line)
+    if ascii:
+        new_ter.ascii_uitput(vis_maze)
+        
+tmp_name()
