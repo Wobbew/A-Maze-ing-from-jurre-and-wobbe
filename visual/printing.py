@@ -104,4 +104,4 @@ def tmp_name():
     if ascii:
         new_ter.ascii_uitput(vis_maze)
         
-tmp_name()
+# tmp_name()
