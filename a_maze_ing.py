@@ -28,13 +28,15 @@ class maze():
         self.x = x
         self.y = y
         marked = 0
-        last_multioption = [0, 0]
+        last_multioption = [[]]
+        multioption_count = 0
         while marked != total:
             if x == self.width:
                 x = 0
                 y += 1
-            if [x, y] != [0, 0]:
-                last_multioption = x, y
+            if list_dict[y][x]["walls"] != 1 or 2 or 4 or 8:
+                last_multioption[multioption_count].append = [x, y]
+                multioption_count += 1
             choice = self.Random()
             if choice == "Error":
                 x, y = last_multioption
@@ -42,19 +44,25 @@ class maze():
             if choice == "N":
                 list_dict[y][x]["walls"] = list_dict[y][x]["walls"] - 1
                 list_dict[y - 1][x]["walls"] = list_dict[y - 1][x]["walls"] - 4
+                y -= 1
             elif choice == "S":
                 list_dict[y][x]["walls"] = list_dict[y][x]["walls"] - 4
                 list_dict[y + 1][x]["walls"] = list_dict[y + 1][x]["walls"] - 1
+                y += 1
             elif choice == "E":
                 list_dict[y][x]["walls"] = list_dict[y][x]["walls"] - 2
                 list_dict[y][x + 1]["walls"] = list_dict[y][x + 1]["walls"] - 8
+                x -= 1
             elif choice == "W":
                 list_dict[y][x]["walls"] = list_dict[y][x]["walls"] - 8
                 list_dict[y][x - 1]["walls"] = list_dict[y][x - 1]["walls"] - 2
+                x += 1
+            else:
+                [x, y] = last_multioption[multioption_count]
+                multioption_count - 1
             if list_dict[y][x]["marked"] is False:
                 list_dict[y][x]["marked"] = True
                 marked += 1
-            x += 1
 
     def Random(self) -> str:
         choice = []
