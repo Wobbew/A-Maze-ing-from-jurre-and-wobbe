@@ -2,16 +2,18 @@ from mlx import Mlx
 import printing
 
 KEY_ESCAPE = 65307
-KEY_W      = 119
-KEY_A      = 97
-KEY_S      = 115
-KEY_D      = 100
+KEY_W = 119
+KEY_A = 97
+KEY_S = 115
+KEY_D = 100
 mlx = Mlx()
 ptr = mlx.mlx_init()
+
+
 class player:
     def __init__(self, Y, X, facing, maze):
-        self.Y =Y
-        self.X=X
+        self.Y = Y
+        self.X = X
         self.facing = facing
         self.maze = maze
 
@@ -23,7 +25,7 @@ class player:
         view = []
 
         for depth in range(1, max_depth + 1):
-            y = self.Y - depth +1
+            y = self.Y - depth + 1
             x = self.X
 
             front = self.get_wall(y, x, 1)
@@ -91,35 +93,31 @@ def draw_left_wall(p, depth, window, max_depth = 3, wall = True):
     #                     if p.get_wall(p.Y + depth + 1, p.X - 1, 4):
     #                         pass
 
-def draw_right_wall(p, depth, window, max_depth = 3, wall = True):
+
+def draw_right_wall(p, depth, window, max_depth=3, wall=True):
     if depth == 3:
         if wall:
             pass
     if depth == 2:
         if wall:
             mlx.mlx_put_image_to_window(ptr, window, get_image("images/RWall2.png"), 0, 0)
+        else:
+            if p.get_wall(p.Y + depth, p.X - 1, 1):
+                mlx.mlx_put_image_to_window(ptr, window, get_image("images/FWall+1_2.png"), 0, 0)
     if depth == 1:
         if wall:
             mlx.mlx_put_image_to_window(ptr, window, get_image("images/RWall1.png"), 0, 0)
-    if not wall:
-        if depth < max_depth:
-            if depth + 1 <= max_depth:
-                if p.get_wall(p.Y + depth, p.X - 1, 1):
-                    mlx.mlx_put_image_to_window(ptr, window, get_image("images/FWall+1_2.png"), 0, 0)
-                else:
-                    if depth + 2 <= max_depth:
-                        if p.get_wall(p.Y + depth + 1, p.X - 1, 4):
-                            mlx.mlx_put_image_to_window(ptr, window, get_image("images/RWall+1_2.png"), 0, 0)
-            
+        else:
+            if p.get_wall(p.Y + depth, p.X - 1, 1):
+                mlx.mlx_put_image_to_window(ptr, window, get_image("images/FWall+1 1.png"), 0, 0)
+            elif p.get_wall(p.Y + depth + 1, p.X - 1, 4):
+                    mlx.mlx_put_image_to_window(ptr, window, get_image("images/RWall+1_2.png"), 0, 0)
 
-def render_3d(maze, X=0, Y=1, facing="N"):
+
+def render_3d(maze, X=0, Y=0, facing="N"):
     p = player(Y, X, facing, maze)
 
-
     window = mlx.mlx_new_window(ptr, 1920, 1080, "test")
-
-    
-
 
     def on_key(keynum, dummy):
         if keynum == KEY_ESCAPE:  
@@ -129,6 +127,7 @@ def render_3d(maze, X=0, Y=1, facing="N"):
     mlx.mlx_put_image_to_window(ptr, window, get_image("images/floor and ceiling.png"), 0, 0)
     tmp_name(p, window)
     mlx.mlx_loop(ptr)
+
 
 def get_image(name):
     return mlx.mlx_png_file_to_image(ptr, name)[0]
