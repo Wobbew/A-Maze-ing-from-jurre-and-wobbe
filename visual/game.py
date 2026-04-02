@@ -45,7 +45,7 @@ class player:
         if y < 0 or x < 0 or y >= len(self.maze) or x >= len(self.maze[0]):
             return False
         return True
-
+         
     def move(self, window):
         x, y = cells_around(self, 0, 0, 1)
         if self.is_valid((x, y)):
