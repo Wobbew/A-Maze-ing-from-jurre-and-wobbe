@@ -17,7 +17,7 @@ class player:
         self.facing = facing
         self.maze = maze
 
-    def view(self, max_depth =4):
+    def view(self, max_depth =3):
         view = []
 
         for depth in range(1, max_depth + 1):
@@ -49,7 +49,7 @@ class player:
     def move(self, window):
         x, y = cells_around(self, 0, 0, 1)
         print(f"X={x} Y={y}")
-        if self.is_valid((x, y)):
+        if self.is_valid((x, y)) and not self.get_wall(cells_around(self, 0, 0, 0), facing_to_bit(self, "F")):
             self.X = x
             self.Y = y
             tmp_name(self, window)
@@ -74,7 +74,7 @@ class player:
 def tmp_name(p, window):
     view = p.view()
     mlx.mlx_clear_window(ptr, window)
-    mlx.mlx_put_image_to_window(ptr, window, get_image("images/floor and ceiling.png"), 0, 0)
+    mlx.mlx_put_image_to_window(ptr, window, get_image("images/floor and ceiling.xpm"), 0, 0)
     print(f"view: {view}\t p {p.maze[p.Y][p.X]}\t{p.facing}")
     for depth in reversed(range(len(view))):
         left, front, right = view[depth]
@@ -83,17 +83,15 @@ def tmp_name(p, window):
         draw_right_wall(p, depth+1, window, wall=right)
         if front:
             draw_front(depth+1, window)
-        elif depth == 2:
-            mlx.mlx_put_image_to_window(ptr, window, get_image( "images2/FNoWall3.png"), 0, 0)
-
+        
 def draw_front(depth, window):
     if depth == 3:
-        mlx.mlx_put_image_to_window(ptr, window, get_image( "images/FWall3.png"), 0, 0)
+        mlx.mlx_put_image_to_window(ptr, window, get_image( "images/FWall3.xpm"), 0, 0)
         print("Fwall3")
     elif depth == 2:
-        mlx.mlx_put_image_to_window(ptr, window, get_image( "images/FWall2.png"), 0, 0)
+        mlx.mlx_put_image_to_window(ptr, window, get_image( "images/FWall2.xpm"), 0, 0)
     elif depth == 1: 
-        mlx.mlx_put_image_to_window(ptr, window, get_image("images/FWall1.png"), 0, 0)
+        mlx.mlx_put_image_to_window(ptr, window, get_image("images/FWall1.xpm"), 0, 0)
         print("Fwall1")
     
     
@@ -101,61 +99,77 @@ def draw_front(depth, window):
 def draw_left_wall(p, depth, window, max_depth = 4, wall = True):
     if depth == 3:
         if wall:
-            mlx.mlx_put_image_to_window(ptr, window, get_image("images/LWall3.png"), 0, 0)
+            mlx.mlx_put_image_to_window(ptr, window, get_image("images/LWall3.xpm"), 0, 0)
+        else:
+            mlx.mlx_put_image_to_window(ptr, window, get_image("images/FWall-1 3.xpm"), 0, 0)
     elif depth == 2:
         if wall:
-            mlx.mlx_put_image_to_window(ptr, window, get_image("images/LWall2.png"), 0, 0)
+            mlx.mlx_put_image_to_window(ptr, window, get_image("images/LWall2.xpm"), 0, 0)
         else:
             if p.get_wall(cells_around(p, 1, 0, 1), facing_to_bit(p, "F")):
-                mlx.mlx_put_image_to_window(ptr, window, get_image("images/FWall-1 2.png"), 0, 0)
+                mlx.mlx_put_image_to_window(ptr, window, get_image("images/FWall-1 2.xpm"), 0, 0)
     elif depth == 1:
         if wall:
-            mlx.mlx_put_image_to_window(ptr, window, get_image("images/LWall1.png"), 0, 0)
+            mlx.mlx_put_image_to_window(ptr, window, get_image("images/LWall1.xpm"), 0, 0)
         else:
             if p.get_wall(cells_around(p, 1, 0, 0), facing_to_bit(p, "F")):
-                mlx.mlx_put_image_to_window(ptr, window, get_image("images/FWall-1 1.png"), 0, 0)
+                mlx.mlx_put_image_to_window(ptr, window, get_image("images/FWall-1 1.xpm"), 0, 0)
+                print("FWall-1 1.xpm")
             elif p.get_wall(cells_around(p, 1, 0, 1), facing_to_bit(p, "L")):
-                    mlx.mlx_put_image_to_window(ptr, window, get_image("images/LWall-1 2.png"), 0, 0)
+                mlx.mlx_put_image_to_window(ptr, window, get_image("images/LWall-1 2.xpm"), 0, 0)
+                print("FWall-1 2.xpm")
+            else:                
+                if p.get_wall(cells_around(p, 2, 0, 1), facing_to_bit(p, "L")):    
+                    mlx.mlx_put_image_to_window(ptr, window, get_image("images/LWall-2 2.xpm"), 0, 0)
+                    print("LWall-2 2.xpm")
+                if p.get_wall(cells_around(p, 2, 0, 1), facing_to_bit(p, "F")):
+                    mlx.mlx_put_image_to_window(ptr, window, get_image("images/FWall-2 2.xpm"), 0, 0)
+                    print("FWall-2 2.xpm")
 
-
-    # if not wall:
-    #     if depth < max_depth:
-    #         if depth + 1 < max_depth:
-    #             if p.get_wmlx.mlx_put_image_to_window(ptr, window, get_image("images/floor and ceiling.png"), 0, 0)all(p.Y + depth, p.X - 1, 1):
-    #                 pass
-    #             else:
-    #                 if depth + 2 < max_depth:
-    #                     if p.get_wall(p.Y + depth + 1, p.X - 1, 4):
-    #                         pass
 
 
 def draw_right_wall(p, depth, window, max_depth=3, wall=True):
     if depth == 3:
         if wall:
-            mlx.mlx_put_image_to_window(ptr, window, get_image("images/RWall3.png"), 0, 0)
+            mlx.mlx_put_image_to_window(ptr, window, get_image("images/RWall3.xpm"), 0, 0)
+        else:
+            if p.get_wall(cells_around(p, 0, 1, 2), facing_to_bit(p, "F")):
+                mlx.mlx_put_image_to_window(ptr, window, get_image("images/FWall+1 3.xpm"), 0, 0)
     if depth == 2:
         if wall:
-            mlx.mlx_put_image_to_window(ptr, window, get_image("images/RWall2.png"), 0, 0)
+            mlx.mlx_put_image_to_window(ptr, window, get_image("images/RWall2.xpm"), 0, 0)
+            pass
         else:
             if p.get_wall(cells_around(p, 0, 1, 1), facing_to_bit(p, "F")):
-                mlx.mlx_put_image_to_window(ptr, window, get_image("images/FWall+1_2.png"), 0, 0)
+                mlx.mlx_put_image_to_window(ptr, window, get_image("images/FWall+1 2.xpm"), 0, 0)
     if depth == 1:
         if wall:
-            mlx.mlx_put_image_to_window(ptr, window, get_image("images/RWall1.png"), 0, 0)
+            mlx.mlx_put_image_to_window(ptr, window, get_image("images/RWall1.xpm"), 0, 0)
+            pass
         else:
             if p.get_wall(cells_around(p, 0, 1, 0), facing_to_bit(p, "F")):
-                mlx.mlx_put_image_to_window(ptr, window, get_image("images/FWall+1 1.png"), 0, 0)
+                mlx.mlx_put_image_to_window(ptr, window, get_image("images/FWall+1 1.xpm"), 0, 0)
             elif p.get_wall(cells_around(p, 0, 1, 1), facing_to_bit(p, "R")):
-                    mlx.mlx_put_image_to_window(ptr, window, get_image("images/RWall+1 2.png"), 0, 0)
+                    mlx.mlx_put_image_to_window(ptr, window, get_image("images/RWall+1 2.xpm"), 0, 0)
+            else:
+                if p.get_wall(cells_around(p, 0, 2, 1), facing_to_bit(p, "R")):    
+                    mlx.mlx_put_image_to_window(ptr, window, get_image("images/RWall+2 2.xpm"), 0, 0)
+                if p.get_wall(cells_around(p, 0, 2, 1), facing_to_bit(p, "F")):
+                    if p.get_wall(cells_around(p, 0, 0, 1), facing_to_bit(p, "R")):
+                        mlx.mlx_put_image_to_window(ptr, window, get_image("images/FWall+2 2.xpm"), 0, 0)
+                    else:
+                        mlx.mlx_put_image_to_window(ptr, window, get_image("images/FWall+2 2.xpm"), 0, 0)
+                    
+
 def cells_around(p, to_L, to_R, to_F):
     if p.facing == 'N':
         return (p.X + to_R - to_L, p.Y - to_F)
     if p.facing == 'S':
         return (p.X + to_L - to_R, p.Y + to_F)
     if p.facing == 'E':
-        return (p.X + to_F, p.Y + to_L - to_R)
+        return (p.X + to_F, p.Y + to_R - to_L)
     if p.facing == 'W':
-        return (p.X - to_F, p.Y + to_R - to_L)
+        return (p.X - to_F, p.Y - to_R + to_L) 
     
 def facing_to_bit(p, side):
     mapping = {
@@ -167,7 +181,7 @@ def facing_to_bit(p, side):
     return mapping[p.facing][side]
     
 
-def render_3d(maze, X=1, Y=8, facing="N"):
+def render_3d(maze, X=3, Y=3, facing="N"):
     p = player(Y, X, facing, maze)
 
     window = mlx.mlx_new_window(ptr, 1920, 1080, "test")
@@ -190,7 +204,7 @@ def render_3d(maze, X=1, Y=8, facing="N"):
 
 
 def get_image(name):
-    return mlx.mlx_png_file_to_image(ptr, name)[0]
+    return mlx.mlx_xpm_file_to_image(ptr, name)[0]
     
 
 maze, entry, exit_pos, path = printing.parser()
