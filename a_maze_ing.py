@@ -1,77 +1,115 @@
-import random, sys
-from enum import IntEnum, auto
+import sys
+import random
 
 
 class maze():
     def __init__(self, dic):
-        self.height = int(dict.get("HEIGHT"))
-        self.width = int(dict.get("WIDTH"))
-        self.perfect = str(dict.get("PERFECT"))
-        self.entry = tuple(dict.get("ENTRY"))
-        self.exit = tuple(dict.get("EXIT"))
-        if dict.get("SEED") != "0":
-            self.seed = random.seed(dict.get("SEED"))
+        self.height = int(dic.get("HEIGHT"))
+        self.width = int(dic.get("WIDTH"))
+        self.perfect = str(dic.get("PERFECT"))
+        self.entry = tuple(dic.get("ENTRY"))
+        self.exit = tuple(dic.get("EXIT"))
+        if dic.get("SEED") != "0":
+            self.seed = random.seed(dic.get("SEED"))
         else:
             self.seed = random.seed()
 
     def maze_gen(self):
         total = self.width * self.height
-        list_dict = [[{}]]
-        y = 0
-        for x in range(total):
-            list_dict[y][x] = {"marked": False, "walls": 0b1111}
-            if x == self.width:
-                x = 0
-                y += 1
+        list_dict = [[{"marked": False, "walls": 0b1111}
+                      for _ in range(self.width)] for _ in range(self.height)]
         self.list_dict = list_dict
-        x, y = [0, 0]
+        x, y = 0, 0
         self.x = x
         self.y = y
         marked = 0
-        last_multioption = [[]]
+        last_multioption = []
         multioption_count = 0
         while marked != total:
-            if x == self.width:
-                x = 0
-                y += 1
-            if list_dict[y][x]["walls"] != 1 or 2 or 4 or 8:
-                last_multioption[multioption_count].append = [x, y]
+            if list_dict[y][x]["walls"] not in (1, 2, 4, 8):
+                last_multioption.append([x, y])
                 multioption_count += 1
+            self.x = x
+            self.y = y
             choice = self.Random()
             if choice == "Error":
-                x, y = last_multioption
+                if last_multioption:
+                    x, y = last_multioption[-1]
                 choice = self.Random()
             if choice == "N":
-                list_dict[y][x]["walls"] = list_dict[y][x]["walls"] - 1
-                list_dict[y - 1][x]["walls"] = list_dict[y - 1][x]["walls"] - 4
+                list_dict[y][x]["walls"] &= ~0b1000
+                list_dict[y - 1][x]["walls"] &= ~0b0100
                 y -= 1
             elif choice == "S":
-                list_dict[y][x]["walls"] = list_dict[y][x]["walls"] - 4
-                list_dict[y + 1][x]["walls"] = list_dict[y + 1][x]["walls"] - 1
+                list_dict[y][x]["walls"] &= ~0b0100
+                list_dict[y + 1][x]["walls"] &= ~0b1000
                 y += 1
             elif choice == "E":
-                list_dict[y][x]["walls"] = list_dict[y][x]["walls"] - 2
-                list_dict[y][x + 1]["walls"] = list_dict[y][x + 1]["walls"] - 8
-                x -= 1
-            elif choice == "W":
-                list_dict[y][x]["walls"] = list_dict[y][x]["walls"] - 8
-                list_dict[y][x - 1]["walls"] = list_dict[y][x - 1]["walls"] - 2
+                list_dict[y][x]["walls"] &= ~0b0010
+                list_dict[y][x + 1]["walls"] &= ~0b0001
                 x += 1
+            elif choice == "W":
+                list_dict[y][x]["walls"] &= ~0b0001
+                list_dict[y][x - 1]["walls"] &= ~0b0010
+                x -= 1
             else:
-                [x, y] = last_multioption[multioption_count]
-                multioption_count - 1
-            if list_dict[y][x]["marked"] is False:
+                if last_multioption:
+                    [x, y] = last_multioption[multioption_count - 1]
+                multioption_count -= 1
+            if not list_dict[y][x]["marked"]:
                 list_dict[y][x]["marked"] = True
                 marked += 1
+
+    def logostamp(self):
+        placeble = False
+        for y in range(self.height):
+            for x in range(self.width):
+                placeble = self.hardlogo(x, y)
+                if placeble:
+                    break
+        if not placeble:
+            print("42error: No available space to place 42")
+        else:
+            for n in self.fortytwo:
+                xtmp, ytmp = n
+                self.list_dict[xtmp][ytmp]["marked"] = True
+
+    def hardlogo(self, x, y) -> bool:
+        fortytwo = [[x - 3, y - 2],
+                    [x - 3, y - 1],
+                    [x - 3, y],
+                    [x - 2, y],
+                    [x - 1, y],
+                    [x - 1, y + 1],
+                    [x - 1, y + 2],
+                    [x + 1, y - 2],
+                    [x + 2, y - 2],
+                    [x + 3, y - 2],
+                    [x + 3, y - 1],
+                    [x + 3, y],
+                    [x + 2, y],
+                    [x + 1, y],
+                    [x + 1, y + 1],
+                    [x + 1, y + 2],
+                    [x + 2, y + 2],
+                    [x + 3, y + 2]]
+        self.fortytwo = fortytwo
+        possible = True
+        for loc in fortytwo:
+            if loc == self.entry or self.exit:
+                possible = False
+            if not possible:
+                return False
+        return True
 
     def Random(self) -> str:
         choice = []
         x = self.x
         y = self.y
         if x > 0 and self.list_dict[y][x - 1]["marked"] is False:
-            choice.append("E")
-        if x < self.width - 1 and self.list_dict[y][x + 1]["marked"] is False:
             choice.append("W")
+        if x < self.width - 1 and self.list_dict[y][x + 1]["marked"] is False:
+            choice.append("E")
         if y > 0 and self.list_dict[y - 1][x]["marked"] is False:
             choice.append("N")
         if y < self.height - 1 and self.list_dict[y + 1][x]["marked"] is False:
@@ -85,13 +123,16 @@ class maze():
 
 if __name__ == "__main__":
     try:
-        name = sys.argv()
+        name = sys.argv
+        dic = dict()
         with open(name[1]) as file:
             info = file.read()
             tmp = info.split("\n")
             for i in tmp:
-                dic = dict()
-                key, inp = i.split('=')
-                dic.update({key: inp})
+                if '=' in i:
+                    key, inp = i.split('=')
+                    dic.update({key: inp})
+        m = maze(dic)
+        m.maze_gen()
     except FileNotFoundError:
         print("File not found")
