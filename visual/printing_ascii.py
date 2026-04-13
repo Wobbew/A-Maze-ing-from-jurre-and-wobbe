@@ -50,9 +50,8 @@ def place_ascii(walls, vis_maze, i, j):
         vis_maze[bottom][left] = '+'
     if walls[2] and walls[1]:
         vis_maze[bottom][right] = '+'
-    # if walls[0] and walls[1] and walls[2] and walls[3]:
-    #     vis_maze[top+1][left+1] = '■'
-    #     vis_maze[top+1][left+2] = '■'
+    if walls[0] and walls[1] and walls[2] and walls[3]:
+        vis_maze[top+1][left+1] = '+'
 
     return vis_maze
 
@@ -63,7 +62,6 @@ def place_MLX(walls):
 
 def tmp_name():
     maze, entry, exit_pos, path = parser()
-    ascii = True
     HEIGHT = len(maze)
     WIDTH = len(maze[0])
     vis_maze = []  
@@ -86,21 +84,34 @@ def tmp_name():
 def printing_path(maze, entry, exit_pos, path):
     HEIGHT = len(maze)
     WIDTH = len(maze[0])
-    vis_path = []  
+    vis_path = []
     for _ in range(HEIGHT * 2 + 1):
         row = []
         for _ in range(WIDTH * 2 + 1):
             row.append(" ")
         vis_path.append(row)
-    entry = entry.split(", ")
-    X, Y = int(entry[0]), int(entry[1])
+    X, Y = int(entry[0])*2+1, int(entry[1])*2+1
     for go_to in path:
         X, Y, vis_path = add_cell(X, Y, go_to, vis_path)
+    vis_path[int(exit_pos[1])*2+1][int(exit_pos[0])*2+1] = ' '
     return(vis_path)
 
 def add_cell(X, Y, go_to, vis_path):
     if go_to == "N":
-        vis_path[Y+1][X] = "*"
+        vis_path[Y-1][X] = "*"
+        vis_path[Y-2][X] = "*"
+        return(X, Y-2, vis_path)
     if go_to == "E":
-        pass
+        vis_path[Y][X+1] = "*"
+        vis_path[Y][X+2] = "*"
+        return(X+2, Y, vis_path)
+    if go_to == "S":
+        vis_path[Y+1][X] = "*"
+        vis_path[Y+2][X] = "*"
+        return(X, Y+2, vis_path)
+    if go_to == "W":
+        vis_path[Y][X-1] = "*"
+        vis_path[Y][X-2] = "*"
+        return(X-2, Y, vis_path)
+    
 

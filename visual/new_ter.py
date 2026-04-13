@@ -1,5 +1,5 @@
 import threading
-from game import render_3d
+from game import render_3d, render_path
 from parser import parser
 from printing_ascii import printing_path
 from mlx import Mlx
@@ -38,7 +38,7 @@ def ascii_uitput(message, sizeX, sizeY):
         needs_redraw[0] = False
 
         mlx.mlx_clear_window(ptr, window)
-        for _ in range(5):
+        for _ in range(2):
             for i, row in enumerate(message):
                 line = "".join(str(cell) for cell in row)
                 mlx.mlx_string_put(ptr, window, 0, i * line_height, color[0], line)
@@ -47,7 +47,11 @@ def ascii_uitput(message, sizeX, sizeY):
         mlx.mlx_string_put(ptr, window, ((exit_posX * 2) + 1) * chr_weight, ((exit_posY * 2) + 1) * line_height, color[1], "E")
 
         if path_is[1]:
-            mlx.mlx_string_put(ptr, window, 10, 1 * line_height, color[1], )
+            for _ in range(2):
+                for i, row in enumerate(path_is[2]):
+                    line = "".join(str(cell) for cell in row)
+                    mlx.mlx_string_put(ptr, window, 0, i * line_height, color[1], line)
+            
 
     def on_key(keynum, param):
         if keynum == KEY_ESCAPE:
@@ -61,7 +65,8 @@ def ascii_uitput(message, sizeX, sizeY):
 
     color_names = list(colors.keys())
     while t.is_alive():
-        i = input("1 to Exit\n2 to change color\n3 to Enter the 3d environment\nEnter: ")
+        print(chr(27) + "[2J")
+        i = input(f"1 to Exit\n2 to change color\n3 to Enter the 3d environment\n4 to turn show path {path_is[0]}\nEnter: ")
         if i == "1":
             mlx.mlx_loop_exit(ptr)
             break
@@ -75,10 +80,9 @@ def ascii_uitput(message, sizeX, sizeY):
                     color[0] = colors[color_names[int(j) - 1]]
                     color[1] = colors[color_names[int(j) % len(color_names)]]
                     needs_redraw[0] = True
-                    break
         if i == "3":
             
-            render_3d(maze, entry, exit_pos)         
+            render_3d(maze, entry)         
         if i == "4":
             if path_is[1]:
                 path_is[1] = False
@@ -87,5 +91,9 @@ def ascii_uitput(message, sizeX, sizeY):
                 path_is[1] = True
                 path_is[0] = "off"
             path_is[2] = printing_path(maze, entry, exit_pos, path)
+            needs_redraw[0] = True
+        if i == "5":
+            render_path(path, entry, maze)
+
 
 
