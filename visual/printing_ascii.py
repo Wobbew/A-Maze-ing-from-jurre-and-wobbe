@@ -1,24 +1,5 @@
 import subprocess
-import new_ter
-def parser():
-    maze = []
-    entry = None
-    exit_pos = None
-    path = None
-    with open("maze.txt", "r") as file:
-        for line in file:
-            line = line.strip()
-            if line == "":
-                break
-            row = []
-            for c in line:
-                row.append(int(c, 16))
-            maze.append(row)
-        entry = file.readline().strip()
-        exit_pos = file.readline().strip()
-        path = file.readline().strip()
-    return maze, entry, exit_pos, path
-
+from parser import parser
 
 def render_cell(num, vis_maze, i, j, mode="ascii"):
     walls = [False, False, False, False]
@@ -36,23 +17,21 @@ def render_cell(num, vis_maze, i, j, mode="ascii"):
         walls[0] = True
     if mode == "ascii":
         vis_maze = place_ascii(walls, vis_maze, i, j)
-    else:
-        place_MLX(walls)
     return vis_maze
 
 
 def place_ascii(walls, vis_maze, i, j):
-    left = j * 3
-    right = j * 3 + 3
+    left = j * 2
+    right = j * 2 + 2
     top = i * 2
     bottom = i * 2 + 2
 
     if walls[0]:
-        for k in range(4):
+        for k in range(3):
             if vis_maze[top][left + k] != '+':
                 vis_maze[top][left + k] = '-'
     if walls[2]:
-        for k in range(4):
+        for k in range(3):
             if vis_maze[bottom][left + k] != '+':
                 vis_maze[bottom][left + k] = '-'
     if walls[3]:
@@ -71,9 +50,9 @@ def place_ascii(walls, vis_maze, i, j):
         vis_maze[bottom][left] = '+'
     if walls[2] and walls[1]:
         vis_maze[bottom][right] = '+'
-    if walls[0] and walls[1] and walls[2] and walls[3]:
-        vis_maze[top+1][left+1] = '■'
-        vis_maze[top+1][left+2] = '■'
+    # if walls[0] and walls[1] and walls[2] and walls[3]:
+    #     vis_maze[top+1][left+1] = '■'
+    #     vis_maze[top+1][left+2] = '■'
 
     return vis_maze
 
@@ -87,10 +66,10 @@ def tmp_name():
     ascii = True
     HEIGHT = len(maze)
     WIDTH = len(maze[0])
-    vis_maze = []
+    vis_maze = []  
     for _ in range(HEIGHT * 2 + 1):
         row = []
-        for _ in range(WIDTH * 3 + 1):
+        for _ in range(WIDTH * 2 + 1):
             row.append(" ")
         vis_maze.append(row)
 
@@ -101,7 +80,27 @@ def tmp_name():
             vis_maze = render_cell(maze[i][j], vis_maze, i, j)
             j = j + 1
         i = i + 1
-    if ascii:
-        new_ter.ascii_uitput(vis_maze)
+    return vis_maze, len(vis_maze[0]), len(vis_maze)
         
-tmp_name()
+
+def printing_path(maze, entry, exit_pos, path):
+    HEIGHT = len(maze)
+    WIDTH = len(maze[0])
+    vis_path = []  
+    for _ in range(HEIGHT * 2 + 1):
+        row = []
+        for _ in range(WIDTH * 2 + 1):
+            row.append(" ")
+        vis_path.append(row)
+    entry = entry.split(", ")
+    X, Y = int(entry[0]), int(entry[1])
+    for go_to in path:
+        X, Y, vis_path = add_cell(X, Y, go_to, vis_path)
+    return(vis_path)
+
+def add_cell(X, Y, go_to, vis_path):
+    if go_to == "N":
+        vis_path[Y+1][X] = "*"
+    if go_to == "E":
+        pass
+

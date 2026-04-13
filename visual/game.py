@@ -1,5 +1,5 @@
 from mlx import Mlx
-import printing
+from parser import parser
 
 KEY_ESCAPE = 65307
 KEY_W = 119
@@ -8,6 +8,7 @@ KEY_S = 115
 KEY_D = 100
 mlx = Mlx()
 ptr = mlx.mlx_init()
+images = {}
 
 
 class player:
@@ -161,7 +162,7 @@ def draw_right_wall(p, depth, window, max_depth=3, wall=True):
                         mlx.mlx_put_image_to_window(ptr, window, get_image("images/FWall+2 2.xpm"), 0, 0)
                     
 
-def cells_around(p, to_L, to_R, to_F):
+def cells_around(p, to_L: int, to_R: int, to_F: int):
     if p.facing == 'N':
         return (p.X + to_R - to_L, p.Y - to_F)
     if p.facing == 'S':
@@ -181,13 +182,16 @@ def facing_to_bit(p, side):
     return mapping[p.facing][side]
     
 
-def render_3d(maze, X=3, Y=3, facing="N"):
+def render_3d(maze, entry, exit_pos, facing="N"):
+    parts = entry.split(", ")
+    X, Y = int(parts[0]), int(parts[1])
     p = player(Y, X, facing, maze)
 
     window = mlx.mlx_new_window(ptr, 1920, 1080, "test")
 
     def on_key(keynum, param):
         if keynum == KEY_ESCAPE:
+            mlx.mlx_destroy_window(ptr, window)
             mlx.mlx_loop_exit(ptr)
         if keynum == KEY_W:
             p.move(window)
@@ -204,8 +208,10 @@ def render_3d(maze, X=3, Y=3, facing="N"):
 
 
 def get_image(name):
-    return mlx.mlx_xpm_file_to_image(ptr, name)[0]
+    if name not in images:
+        images[name] = mlx.mlx_xpm_file_to_image(ptr, name)[0]
+    return images[name]
     
 
-maze, entry, exit_pos, path = printing.parser()
-render_3d(maze)
+# maze, entry, exit_pos, path = parser()
+# render_3d(maze, entry, exit_pos)

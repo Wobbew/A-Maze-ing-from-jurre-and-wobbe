@@ -1,47 +1,91 @@
-import subprocess
-import time
 import threading
+from game import render_3d
+from parser import parser
+from printing_ascii import printing_path
+from mlx import Mlx
 
+mlx = Mlx()
+ptr = mlx.mlx_init()
+KEY_ESCAPE = 65307
+needs_redraw = [True]       
+path_is = ["on", False, None]
+extra_message = [None]       
+colors = {
+    "white":   0xFFFFFF,
+    "red":     0x0000FF,
+    "green":   0x00FF00,
+    "blue":    0xFF0000,
+    "yellow":  0xFFFF00,
+    "cyan":    0x00FFFF,
+    "magenta": 0xFF00FF,
+    "gray":    0xAAAAAA,
+}
 
-def ascii_uitput(message):
-    color = "gray"
-    running = True
+def ascii_uitput(message, sizeX, sizeY):
+    line_height = 15
+    chr_weight = 10
+    window = mlx.mlx_new_window(ptr, sizeX * chr_weight, sizeY * line_height, "test")
+    maze, entry, exit_pos, path = parser()
+    exit_pos =exit_pos.split(", ")
+    exit_posX, exit_posY = int(exit_pos[0]), int(exit_pos[1])
+    entry = entry.split(", ")
+    entryX, entryY = int(entry[0]), int(entry[1])
+    color = [0xFFFFFF, 0x0000FF]
 
-    display = "\n".join("".join(str(cell) for cell in row) for row in message)
-    
-    def open_terminal():
-        return subprocess.Popen([
-            "xterm", "-T", "Output",
-            "-fg",  color,
-            "-e", f'echo "{display}"; stty -echo; sleep infinity'
-        ])
+    def render(param):
+        if not needs_redraw[0]:
+            return
+        needs_redraw[0] = False
 
-    proc = open_terminal()
+        mlx.mlx_clear_window(ptr, window)
+        for _ in range(5):
+            for i, row in enumerate(message):
+                line = "".join(str(cell) for cell in row)
+                mlx.mlx_string_put(ptr, window, 0, i * line_height, color[0], line)
+        mlx.mlx_string_put(ptr, window, ((entryX * 2) + 1) * chr_weight, ((entryY * 2) + 1) * line_height, color[1], "S")
 
-    def keep_alive():
-        nonlocal proc
-        while running:
-            if proc.poll() is not None:
-                proc = open_terminal()
-            time.sleep(1)
+        mlx.mlx_string_put(ptr, window, ((exit_posX * 2) + 1) * chr_weight, ((exit_posY * 2) + 1) * line_height, color[1], "E")
 
-    t = threading.Thread(target=keep_alive, daemon=True)
+        if path_is[1]:
+            mlx.mlx_string_put(ptr, window, 10, 1 * line_height, color[1], )
+
+    def on_key(keynum, param):
+        if keynum == KEY_ESCAPE:
+            mlx.mlx_loop_exit(ptr)
+
+    mlx.mlx_loop_hook(ptr, render, None)
+    mlx.mlx_key_hook(window, on_key, None)
+
+    t = threading.Thread(target=mlx.mlx_loop, args=(ptr,), daemon=True)
     t.start()
 
-    while True:
-        i = input("1 to Exit: \n2 to chang color:\nEnter:")
+    color_names = list(colors.keys())
+    while t.is_alive():
+        i = input("1 to Exit\n2 to change color\n3 to Enter the 3d environment\nEnter: ")
         if i == "1":
-            running = False
-            proc.terminate()
+            mlx.mlx_loop_exit(ptr)
             break
         if i == "2":
-            colors = ["black", "white", "red", "green", "blue", "yellow", "cyan", "magenta", "gray"]
+            options = "\n".join(f"{n+1} = {name}" for n, name in enumerate(color_names))
             while True:
-                i = (input("1 = black\n2 = white\n3 = red\n4 = green\n5 = blue\n6 =yellow\n7 = cyan\n8 = magenta\n9 = gray\nEnter:"))
-                if not i.isdigit() or int(i) not in range(1, 10):
-                    print(f"{i} is not a faled opion")
+                j = input(f"{options}\nEnter: ")
+                if not j.isdigit() or int(j) not in range(1, len(color_names) + 1):
+                    print(f"{j} is not a valid option")
                 else:
-                    color = colors[int(i) - 1]
-                    proc.terminate()
+                    color[0] = colors[color_names[int(j) - 1]]
+                    color[1] = colors[color_names[int(j) % len(color_names)]]
+                    needs_redraw[0] = True
                     break
+        if i == "3":
+            
+            render_3d(maze, entry, exit_pos)         
+        if i == "4":
+            if path_is[1]:
+                path_is[1] = False
+                path_is[0] = "on"
+            else:
+                path_is[1] = True
+                path_is[0] = "off"
+            path_is[2] = printing_path(maze, entry, exit_pos, path)
+
 
