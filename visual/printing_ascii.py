@@ -1,5 +1,5 @@
-import subprocess
 from parser import parser
+
 
 def render_cell(num, vis_maze, i, j, mode="ascii"):
     walls = [False, False, False, False]
@@ -64,7 +64,7 @@ def tmp_name():
     maze, entry, exit_pos, path = parser()
     HEIGHT = len(maze)
     WIDTH = len(maze[0])
-    vis_maze = []  
+    vis_maze = []
     for _ in range(HEIGHT * 2 + 1):
         row = []
         for _ in range(WIDTH * 2 + 1):
@@ -79,7 +79,7 @@ def tmp_name():
             j = j + 1
         i = i + 1
     return vis_maze, len(vis_maze[0]), len(vis_maze)
-        
+
 
 def printing_path(maze, entry, exit_pos, path):
     HEIGHT = len(maze)
@@ -94,24 +94,23 @@ def printing_path(maze, entry, exit_pos, path):
     for go_to in path:
         X, Y, vis_path = add_cell(X, Y, go_to, vis_path)
     vis_path[int(exit_pos[1])*2+1][int(exit_pos[0])*2+1] = ' '
-    return(vis_path)
+    return vis_path
+
 
 def add_cell(X, Y, go_to, vis_path):
     if go_to == "N":
         vis_path[Y-1][X] = "*"
         vis_path[Y-2][X] = "*"
-        return(X, Y-2, vis_path)
+        return X, Y-2, vis_path
     if go_to == "E":
         vis_path[Y][X+1] = "*"
         vis_path[Y][X+2] = "*"
-        return(X+2, Y, vis_path)
+        return X+2, Y, vis_path
     if go_to == "S":
         vis_path[Y+1][X] = "*"
         vis_path[Y+2][X] = "*"
-        return(X, Y+2, vis_path)
+        return X, Y+2, vis_path
     if go_to == "W":
         vis_path[Y][X-1] = "*"
         vis_path[Y][X-2] = "*"
-        return(X-2, Y, vis_path)
-    
-
+        return X-2, Y, vis_path
