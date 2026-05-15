@@ -21,55 +21,7 @@ class maze():
                 for cell in row:
                     line += format(cell["walls"], "X")
                 f.write(line + "\n")
-
-    def maze_gen(self):
-        total = self.width * self.height
-        list_dict = [[{"marked": False, "walls": 0b1111}
-                      for _ in range(self.width)] for _ in range(self.height)]
-        self.list_dict = list_dict
-        x, y = 0, 0
-        self.x = x
-        self.y = y
-        marked = 0
-        last_multioption = []
-        while marked != total:
-            if list_dict[y][x]["walls"] not in (1, 2, 4, 8):
-                last_multioption.append([x, y])
-            self.x = x
-            self.y = y
-            print(x, y)
-            choice = self.Random()
-            while choice == "Error":
-                if last_multioption:
-                    # print(last_multioption)
-                    x, y = last_multioption.pop()
-                    self.x = x
-                    self.y = y
-                    choice = self.Random()
-                if choice == "Error":
-                    continue
-            if choice == "N":
-                list_dict[y][x]["walls"] &= ~0b1000
-                list_dict[y - 1][x]["walls"] &= ~0b0100
-                y -= 1
-            elif choice == "S":
-                list_dict[y][x]["walls"] &= ~0b0100
-                list_dict[y + 1][x]["walls"] &= ~0b1000
-                y += 1
-            elif choice == "E":
-                list_dict[y][x]["walls"] &= ~0b0010
-                list_dict[y][x + 1]["walls"] &= ~0b0001
-                x += 1
-            elif choice == "W":
-                list_dict[y][x]["walls"] &= ~0b0001
-                list_dict[y][x - 1]["walls"] &= ~0b0010
-                x -= 1
-            if not list_dict[y][x]["marked"]:
-                list_dict[y][x]["marked"] = True
-                marked += 1
-        print(marked)
-        return list_dict
-
+    
     def logostamp(self):
         placeable = False
         for y in range(self.height):
@@ -85,6 +37,7 @@ class maze():
             for n in self.fortytwo:
                 xtmp, ytmp = n
                 self.list_dict[ytmp][xtmp]["marked"] = True
+        return self.list_dict
 
     def hardlogo(self, x, y) -> bool:
         fortytwo = [[x - 3, y - 2],
@@ -114,6 +67,55 @@ class maze():
             if list(loc) == list(self.entry) or list(loc) == list(self.exit):
                 return False
         return True
+
+    def maze_gen(self):
+        total = self.width * self.height
+        list_dict = [[{"marked": False, "walls": 0b1111}
+                      for _ in range(self.width)] for _ in range(self.height)]
+        self.list_dict = list_dict
+        x, y = 0, 0
+        self.x = x
+        self.y = y
+        marked = 0
+        last_multioption = []
+        list_dict = self.logostamp()
+        while marked != total:
+            if list_dict[y][x]["walls"] not in (1, 2, 4, 8):
+                last_multioption.append([x, y])
+            self.x = x
+            self.y = y
+            print(x, y)
+            choice = self.Random()
+            while choice == "Error":
+                if last_multioption:
+
+                    x, y = last_multioption.pop()
+                    self.x = x
+                    self.y = y
+                    choice = self.Random()
+                if choice == "Error":
+                    continue
+            if choice == "N":
+                list_dict[y][x]["walls"] &= ~0b1000
+                list_dict[y - 1][x]["walls"] &= ~0b0100
+                y -= 1
+            elif choice == "S":
+                list_dict[y][x]["walls"] &= ~0b0100
+                list_dict[y + 1][x]["walls"] &= ~0b1000
+                y += 1
+            elif choice == "E":
+                list_dict[y][x]["walls"] &= ~0b0010
+                list_dict[y][x + 1]["walls"] &= ~0b0001
+                x += 1
+            elif choice == "W":
+                list_dict[y][x]["walls"] &= ~0b0001
+                list_dict[y][x - 1]["walls"] &= ~0b0010
+                x -= 1
+            if not list_dict[y][x]["marked"]:
+                list_dict[y][x]["marked"] = True
+                marked += 1
+        print(marked)
+        return list_dict
 
     def Random(self) -> str:
         choice = []
