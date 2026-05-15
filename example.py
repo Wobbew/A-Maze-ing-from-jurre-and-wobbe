@@ -81,7 +81,7 @@ class maze():
             random.seed()
 
     def maze_gen(self):
-        total     = self.width * self.height
+        total = self.width * self.height
         list_dict = {}
         for r in range(self.height):
             list_dict[r] = {}
