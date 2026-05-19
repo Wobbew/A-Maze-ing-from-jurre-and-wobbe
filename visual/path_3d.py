@@ -1,6 +1,6 @@
 import time
 from mlx import Mlx
-from render_3d import player, tmp_name, clear_images
+from render_3d import player, find_walls, clear_images
 
 
 def render_path(path, entry, maze):

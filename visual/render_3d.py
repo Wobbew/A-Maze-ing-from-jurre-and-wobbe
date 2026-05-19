@@ -8,7 +8,7 @@ images = {}
 end: tuple[int, int] = (0, 0)
 
 
-class Player:
+class player:
     def __init__(self, Y, X, facing, maze, exit, mlx=None, ptr=None):
         self.Y = Y
         self.X = X
