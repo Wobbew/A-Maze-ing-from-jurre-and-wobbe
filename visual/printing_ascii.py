@@ -64,53 +64,58 @@ def tmp_name():
     maze, entry, exit_pos, path = parser()
     HEIGHT = len(maze)
     WIDTH = len(maze[0])
-    vis_maze = []
-    for _ in range(HEIGHT * 2 + 1):
-        row = []
-        for _ in range(WIDTH * 2 + 1):
-            row.append(" ")
-        vis_maze.append(row)
+    vis_maze = [[" "] * (WIDTH * 2 + 1) for _ in range(HEIGHT * 2 + 1)]
 
-    i = 0
     for i in range(HEIGHT):
-        j = 0
         for j in range(WIDTH):
             vis_maze = render_cell(maze[i][j], vis_maze, i, j)
-            j = j + 1
-        i = i + 1
+
     return vis_maze, len(vis_maze[0]), len(vis_maze)
 
 
 def printing_path(maze, entry, exit_pos, path):
     HEIGHT = len(maze)
     WIDTH = len(maze[0])
-    vis_path = []
-    for _ in range(HEIGHT * 2 + 1):
-        row = []
-        for _ in range(WIDTH * 2 + 1):
-            row.append(" ")
-        vis_path.append(row)
-    X, Y = int(entry[0])*2+1, int(entry[1])*2+1
+    vis_path = [[" "] * (WIDTH * 2 + 1) for _ in range(HEIGHT * 2 + 1)]
+
+    X, Y = int(entry[0]) * 2 + 1, int(entry[1]) * 2 + 1
+    vis_path[Y][X] = "*"
+
     for go_to in path:
         X, Y, vis_path = add_cell(X, Y, go_to, vis_path)
+
     vis_path[int(exit_pos[1])*2+1][int(exit_pos[0])*2+1] = ' '
     return vis_path
 
 
 def add_cell(X, Y, go_to, vis_path):
+    max_row = len(vis_path) - 1
+    max_col = len(vis_path[0]) - 1
+
     if go_to == "N":
-        vis_path[Y-1][X] = "*"
-        vis_path[Y-2][X] = "*"
-        return X, Y-2, vis_path
+        if Y - 1 >= 0:
+            vis_path[Y-1][X] = "*"
+        if Y - 2 >= 0:
+            vis_path[Y-2][X] = "*"
+        return X, max(Y - 2, 0), vis_path
+
     if go_to == "E":
-        vis_path[Y][X+1] = "*"
-        vis_path[Y][X+2] = "*"
-        return X+2, Y, vis_path
+        if X + 1 <= max_col:
+            vis_path[Y][X+1] = "*"
+        if X + 2 <= max_col:
+            vis_path[Y][X+2] = "*"
+        return min(X + 2, max_col), Y, vis_path
+
     if go_to == "S":
-        vis_path[Y+1][X] = "*"
-        vis_path[Y+2][X] = "*"
-        return X, Y+2, vis_path
+        if Y + 1 <= max_row:
+            vis_path[Y+1][X] = "*"
+        if Y + 2 <= max_row:
+            vis_path[Y+2][X] = "*"
+        return X, min(Y + 2, max_row), vis_path
+
     if go_to == "W":
-        vis_path[Y][X-1] = "*"
-        vis_path[Y][X-2] = "*"
-        return X-2, Y, vis_path
+        if X - 1 >= 0:
+            vis_path[Y][X-1] = "*"
+        if X - 2 >= 0:
+            vis_path[Y][X-2] = "*"
+        return max(X - 2, 0), Y, vis_path

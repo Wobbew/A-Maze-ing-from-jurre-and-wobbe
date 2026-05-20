@@ -99,7 +99,7 @@ def ascii_uitput(message, sizeX, sizeY):
                     needs_redraw[0] = True
                     break
         if i == "4":
-            render_3d(maze, entry)
+            render_3d(maze, exit_pos, entry)
         if i == "3":
             if path_is[1]:
                 path_is[1] = False

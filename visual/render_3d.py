@@ -74,7 +74,6 @@ def find_walls(p, window, mlx, ptr):
     print(f"view: {view}\t p {p.maze[p.Y][p.X]}\t{p.facing}")
     for depth in reversed(range(len(view))):
         left, front, right = view[depth]
-        p.is_end(left, front, right, depth+1)
         print(f"depth={depth} left={left} front={front} right={right}")
         draw_left_wall(p, depth+1, window, mlx, ptr, wall=left)
         draw_right_wall(p, depth+1, window, mlx, ptr, wall=right)
@@ -232,7 +231,7 @@ def render_3d(maze, entry, exit, facing="N"):
     mlx = Mlx()
     ptr = mlx.mlx_init()
     X, Y = int(entry[0]), int(entry[1])
-    p = Player(Y, X, facing, maze, exit, mlx, ptr)
+    p = player(Y, X, facing, maze, exit, mlx, ptr)
 
     window = mlx.mlx_new_window(ptr, 1920, 1080, "test")
 
