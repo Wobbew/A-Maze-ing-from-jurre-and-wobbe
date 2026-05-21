@@ -21,7 +21,7 @@ class maze():
                 for cell in row:
                     line += format(cell["walls"], "X")
                 f.write(line + "\n")
-    
+
     def logostamp(self):
         placeable = False
         for y in range(self.height):
@@ -96,7 +96,8 @@ class maze():
                     for i in range(self.height):
                         for j in range(self.width):
                             if list_dict[i][j]["marked"] and \
-                                list_dict[i][j]["walls"] not in (1, 2, 4, 8):
+                                    list_dict[i][j]["walls"] \
+                                    not in (1, 2, 4, 8):
                                 last_multioption.append([j, i])
                     if not last_multioption:
                         print("Error: No more options available")
@@ -152,14 +153,6 @@ class maze():
         self.checked = [self.entry]
         while location != self.exit:
             choice = self.choice(location)
-            while choice is None:
-                if loc_route:
-                    location = loc_route.pop()
-                    route.pop()
-                    choice = self.choice(location)
-                else:
-                    print("Error: No more options available")
-                    return []
             if choice == "N":
                 location = (location[0], location[1] - 1)
             elif choice == "S":
@@ -188,9 +181,59 @@ class maze():
         if self.list_dict[y][x]["walls"] & 0b1000 == 0 \
                 and (x - 1, y) not in self.checked:
             options.append("W")
+        if len(options) > 1:
+
         choice = random.choice(options) if options else None
         return choice
 
+    def solver(self) -> list:
+        locations = [[]]
+        routes = [[]]
+        loc_routes = [[]]
+        options = []
+        locations[0].append(self.entry)
+        while not any(sub[-1] == self.exit for sub in locations):
+            for n in locations:
+                x, y = locations[n]
+                if self.list_dict[y][x]["walls"] & 0b0001 == 0 \
+                and routes[n][-1] != "S":
+                    options.append("N")
+                if self.list_dict[y][x]["walls"] & 0b0010 == 0 \
+                and routes[n][-1] != "W":
+                    options.append("E")
+                if self.list_dict[y][x]["walls"] & 0b0100 == 0 \
+                and routes[n][-1] != "N":
+                    options.append("S")
+                if self.list_dict[y][x]["walls"] & 0b1000 == 0 \
+                and routes[n][-1] != "E":
+                    options.append("W")
+                if not options:
+                    del locations[n]
+                    break
+                amount = len(options)
+                while amount > 1:
+                    locations.append(locations[n])
+                    routes.append(routes[n])
+                    amount -= 1
+                    # een manier om duidelijk te maken dat de nieuwe splitsingen allemaal een andere kant op gaan
+                
+
+def choice(self, location):
+        x, y = location
+        options = []
+        if self.list_dict[y][x]["walls"] & 0b0001 == 0 \
+                and (x, y - 1) not in self.checked:
+            options.append("N")
+        if self.list_dict[y][x]["walls"] & 0b0010 == 0 \
+                and (x + 1, y) not in self.checked:
+            options.append("E")
+        if self.list_dict[y][x]["walls"] & 0b0100 == 0 \
+                and (x, y + 1) not in self.checked:
+            options.append("S")
+        if self.list_dict[y][x]["walls"] & 0b1000 == 0 \
+                and (x - 1, y) not in self.checked:
+            options.append("W")
+        if len(options) > 1:
 
 if __name__ == "__main__":
     try:
