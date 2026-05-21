@@ -31,9 +31,9 @@ def ascii_uitput(message, sizeX, sizeY):
     window = mlx.mlx_new_window(ptr, sizeX * chr_weight, sizeY * line_height,
                                 maze_name)
     maze, entry, exit_pos, path = parser()
-    exit_pos = exit_pos.split(", ")
+    exit_pos = exit_pos.split(",")
     exit_posX, exit_posY = int(exit_pos[0]), int(exit_pos[1])
-    entry = entry.split(", ")
+    entry = entry.split(",")
     entryX, entryY = int(entry[0]), int(entry[1])
     color = [0xFFFFFF, 0x0000FF]
 
@@ -99,7 +99,7 @@ def ascii_uitput(message, sizeX, sizeY):
                     needs_redraw[0] = True
                     break
         if i == "4":
-            render_3d(maze, exit_pos, entry)
+            render_3d(maze, entry, exit_pos)
         if i == "3":
             if path_is[1]:
                 path_is[1] = False
@@ -110,4 +110,4 @@ def ascii_uitput(message, sizeX, sizeY):
             path_is[2] = printing_path(maze, entry, exit_pos, path)
             needs_redraw[0] = True
         if i == "5":
-            render_path(path, entry, maze)
+            render_path(path, entry, exit_pos, maze)

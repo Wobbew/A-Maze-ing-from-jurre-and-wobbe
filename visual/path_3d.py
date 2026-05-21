@@ -3,11 +3,12 @@ from mlx import Mlx
 from render_3d import player, find_walls, clear_images
 
 
-def render_path(path, entry, maze):
+def render_path(path, entry, exit, maze):
     mlx = Mlx()
     ptr = mlx.mlx_init()
     X, Y = int(entry[0]), int(entry[1])
-    p = player(Y, X, "N", maze, mlx, ptr)
+    exit = (int(exit[0]), int(exit[1]))
+    p = player(Y, X, "N", maze, exit, mlx, ptr)
     window = mlx.mlx_new_window(ptr, 1920, 1080, "test")
 
     state = {
@@ -19,7 +20,7 @@ def render_path(path, entry, maze):
         move_step(state)
     mlx.mlx_loop_hook(ptr, loop_hook, None)
 
-    tmp_name(p, window, mlx, ptr)
+    find_walls(p, window, mlx, ptr)
     mlx.mlx_loop(ptr)
     clear_images()
 
@@ -49,4 +50,4 @@ def move_step(state):
         p.move(window)
         state["i"] += 1
 
-    tmp_name(p, window, mlx, ptr)
+    find_walls(p, window, mlx, ptr)

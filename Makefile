@@ -4,7 +4,7 @@ PIP     = $(VENV)/bin/pip
 
 .PHONY: build run clean shell
 
-build:
+install:
 	echo "making Virtual environment"
 	python3 -m venv $(VENV)
 	$(PIP) install --upgrade pip

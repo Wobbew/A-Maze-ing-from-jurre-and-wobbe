@@ -47,7 +47,7 @@ class player:
 
     def get_wall(self, pos, mask):
         x, y = pos
-        if not self.is_valid((y, x)):
+        if not self.is_valid((x, y)):
             return True
         return bool(self.maze[y][x] & mask)
 
@@ -74,7 +74,8 @@ def find_walls(p, window, mlx, ptr):
     print(f"view: {view}\t p {p.maze[p.Y][p.X]}\t{p.facing}")
     for depth in reversed(range(len(view))):
         left, front, right = view[depth]
-        print(f"depth={depth} left={left} front={front} right={right}")
+        print(p.X, p.Y)
+        # print(f"depth={depth} left={left} front={front} right={right}")
         draw_left_wall(p, depth+1, window, mlx, ptr, wall=left)
         draw_right_wall(p, depth+1, window, mlx, ptr, wall=right)
         draw_front(p, front, depth+1, window, mlx, ptr)
@@ -84,16 +85,13 @@ def draw_front(p, wall, depth, window, mlx, ptr):
     if depth == 3 and wall:
         mlx.mlx_put_image_to_window(ptr, window, get_image(
             "images/FWall3.xpm", ptr, mlx), 0, 0)
-    if is_end(pos_cells_around(p, 0, 0, 3), p.exit):
-            # mlx.mlx_put_image_to_window(ptr, window, get_image(
-            #     "images/Exit3.xpm", ptr, mlx), 0, 0)
-            pass
+    if is_end(pos_cells_around(p, 0, 0, 2), p.exit):
+        mlx.mlx_put_image_to_window(ptr, window, get_image("images/end3.xpm", ptr, mlx), 0, 0)
     elif depth == 2 and wall:
         mlx.mlx_put_image_to_window(ptr, window, get_image(
             "images/FWall2.xpm", ptr, mlx), 0, 0)
-    if is_end(pos_cells_around(p, 0, 0, 2), p.exit):
-        # mlx.mlx_put_image_to_window(ptr, window, get_image(
-        #     "images/Exit2.xpm", ptr, mlx), 0, 0)
+    if is_end(pos_cells_around(p, 0, 0, 1), p.exit):
+        mlx.mlx_put_image_to_window(ptr, window, get_image("images/end2.xpm", ptr, mlx), 0, 0)
         pass
     elif depth == 1 and wall:
         mlx.mlx_put_image_to_window(ptr, window, get_image(
@@ -118,9 +116,9 @@ def draw_left_wall(p, depth, window, mlx, ptr, wall=True,):
                           facing_to_bit_mask(p.facing, "F")):
                 mlx.mlx_put_image_to_window(ptr, window, get_image(
                     "images/FWall-1 2.xpm", ptr, mlx), 0, 0)
-            elif is_end(pos_cells_around(p, 1, 0, 2)[0], p.exit):
-                # mlx.mlx_put_image_to_window(ptr, window, get_image(
-                #     "images/Exit-1 3.xpm", ptr, mlx), 0, 0)
+            elif is_end(pos_cells_around(p, 1, 0, 2), p.exit):
+                mlx.mlx_put_image_to_window(ptr, window, get_image(
+                    "images/end-1_3.xpm", ptr, mlx), 0, 0)
                 pass
     elif depth == 1:
         if wall:
@@ -169,10 +167,9 @@ def draw_right_wall(p, depth, window, mlx, ptr, wall=True):
                           facing_to_bit_mask(p.facing, "F")):
                 mlx.mlx_put_image_to_window(ptr, window, get_image(
                     "images/FWall+1 2.xpm", ptr, mlx), 0, 0)
-            elif is_end(pos_cells_around(p, 0, 1, 2)[0], p.exit):
-                # mlx.mlx_put_image_to_window(ptr, window, get_image(
-                #     "images/Exit+1 3.xpm", ptr, mlx), 0, 0)
-                pass
+            elif is_end(pos_cells_around(p, 0, 1, 2), p.exit):
+                mlx.mlx_put_image_to_window(ptr, window, get_image(
+                    "images/end+1_3.xpm", ptr, mlx), 0, 0)
     if depth == 1:
         if wall:
             mlx.mlx_put_image_to_window(ptr, window, get_image(
@@ -221,9 +218,14 @@ def facing_to_bit_mask(facing, side):
     return mapping[facing][side]
 
 
-def is_end(pos: tuple[int, int], exit: tuple[int, int]) -> bool:
-    if pos == exit:
+def is_end(pos: tuple[int, int], exit) -> bool:
+    end_x = exit[0]
+    end_y = exit[1]
+    pos_x, pos_y = pos
+    if pos_x == end_x and pos_y == end_y:
+        print("End", pos)
         return True
+    print("not", pos_x, pos_y, "is", end_x, end_y)
     return False
 
 
@@ -231,6 +233,7 @@ def render_3d(maze, entry, exit, facing="N"):
     mlx = Mlx()
     ptr = mlx.mlx_init()
     X, Y = int(entry[0]), int(entry[1])
+    exit = (int(exit[0]), int(exit[1]))
     p = player(Y, X, facing, maze, exit, mlx, ptr)
 
     window = mlx.mlx_new_window(ptr, 1920, 1080, "test")
