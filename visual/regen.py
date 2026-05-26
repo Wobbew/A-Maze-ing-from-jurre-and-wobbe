@@ -1,5 +1,5 @@
 from printing_ascii import tmp_name
-from new_ter import ascii_uitput
+from visual.opsions import ascii_uitput
 
 
 def main():

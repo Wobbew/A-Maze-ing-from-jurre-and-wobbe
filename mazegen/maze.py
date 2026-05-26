@@ -1,5 +1,6 @@
 import random
 
+
 class MazeGenerator:
     def __init__(self, height, width, perfect, entry, exit, seed):
         self.height = height
@@ -19,7 +20,7 @@ class MazeGenerator:
                 for cell in row:
                     line += format(cell["walls"], "X")
                 f.write(line + "\n")
-    
+
     def logostamp(self):
         placeable = False
         for y in range(self.height):
@@ -188,3 +189,6 @@ class MazeGenerator:
             options.append("W")
         choice = random.choice(options) if options else None
         return choice
+
+
+

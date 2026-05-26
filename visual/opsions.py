@@ -1,10 +1,10 @@
-
 import threading
 import os
-from render_3d import render_3d
-from path_3d import render_path
-from parser import parser
-from printing_ascii import printing_path
+from mazegen import MazeGenerator
+from .render_3d import render_3d
+from .path_3d import render_path
+from .parser import parser
+from .printing_ascii import printing_path, tmp_name
 from mlx import Mlx
 
 mlx = Mlx()
@@ -25,7 +25,7 @@ colors = {
 }
 
 
-def ascii_uitput(message, sizeX, sizeY):
+def ascii_uitput(message, sizeX, sizeY, dic):
     line_height = 15
     chr_weight = 10
     window = mlx.mlx_new_window(ptr, sizeX * chr_weight, sizeY * line_height,
@@ -68,18 +68,18 @@ def ascii_uitput(message, sizeX, sizeY):
 
     color_names = list(colors.keys())
     while t.is_alive():
-        os.system
+        os.system("clear")
         i = input("1 to Exit\n"
                   "2 to change color\n"
                   f"3 to turn show path {path_is[0]}\n"
                   "4 to Enter the 3d environment\n"
                   "5 to Enter the path environment\n"
+                  "6 to Generate a new maze\n"
                   "Enter: ")
         if i == "1":
             mlx.mlx_loop_exit(ptr)
             break
         if i == "2":
-
             while True:
                 j = input(
                         "1. white\n"
@@ -89,7 +89,8 @@ def ascii_uitput(message, sizeX, sizeY):
                         "5. yellow\n"
                         "6. cyan\n"
                         "7. magenta\n"
-                        "8. gray\n""Enter: ")
+                        "8. gray\n"
+                        "Enter: ")
                 if not j.isdigit() or int(j) not in range(
                                                 1, len(color_names) + 1):
                     print(f"{j} is not a valid option")
@@ -98,8 +99,6 @@ def ascii_uitput(message, sizeX, sizeY):
                     color[1] = colors[color_names[int(j) % len(color_names)]]
                     needs_redraw[0] = True
                     break
-        if i == "4":
-            render_3d(maze, entry, exit_pos)
         if i == "3":
             if path_is[1]:
                 path_is[1] = False
@@ -107,7 +106,32 @@ def ascii_uitput(message, sizeX, sizeY):
             else:
                 path_is[1] = True
                 path_is[0] = "off"
+            maze, entry, exit_pos, path = parser()
             path_is[2] = printing_path(maze, entry, exit_pos, path)
             needs_redraw[0] = True
+        if i == "4":
+            render_3d(maze, entry, exit_pos)
         if i == "5":
             render_path(path, entry, exit_pos, maze)
+        if i == "6":
+            m = MazeGenerator(
+                    int(dic.get("HEIGHT")),
+                    int(dic.get("WIDTH")), str(dic.get("PERFECT")),
+                    tuple(int(v) for v in dic.get("ENTRY").split(",")),
+                    tuple(int(v) for v in dic.get("EXIT").split(",")),
+                    dic.get("SEED")
+                )
+            m.maze_gen()
+            m.write_hex("maze.txt")
+            route = m.solve()
+            with open("maze.txt", "a") as f:
+                f.write("\n" + ", ".join(str(int(v))
+                        for v in dic.get("ENTRY").split(",")))
+                f.write("\n" + ", ".join(str(int(v))
+                        for v in dic.get("EXIT").split(",")))
+                f.write("\n" + "".join(route))
+            message, X, Y = tmp_name()
+            if path_is[1]:
+                maze, entry, exit_pos, path = parser()
+                path_is[2] = printing_path(maze, entry, exit_pos, path)
+            needs_redraw[0] = True

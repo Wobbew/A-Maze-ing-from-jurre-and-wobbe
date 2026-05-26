@@ -15,7 +15,7 @@ install:
 
 
 run:
-	$(PYTHON) visual/tmpmain.py
+	$(PYTHON) a_maze_ing.py config.txt
 
 clean:
 	rm -rf $(VENV)

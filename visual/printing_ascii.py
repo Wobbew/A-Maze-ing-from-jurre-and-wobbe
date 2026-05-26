@@ -1,4 +1,4 @@
-from parser import parser
+from .parser import parser
 
 
 def render_cell(num, vis_maze, i, j, mode="ascii"):
@@ -25,7 +25,6 @@ def place_ascii(walls, vis_maze, i, j):
     right = j * 2 + 2
     top = i * 2
     bottom = i * 2 + 2
-
     if walls[0]:
         for k in range(3):
             if vis_maze[top][left + k] != '+':
@@ -52,7 +51,6 @@ def place_ascii(walls, vis_maze, i, j):
         vis_maze[bottom][right] = '+'
     if walls[0] and walls[1] and walls[2] and walls[3]:
         vis_maze[top+1][left+1] = '+'
-
     return vis_maze
 
 
@@ -65,54 +63,49 @@ def tmp_name():
     HEIGHT = len(maze)
     WIDTH = len(maze[0])
     vis_maze = [[" "] * (WIDTH * 2 + 1) for _ in range(HEIGHT * 2 + 1)]
-
     for i in range(HEIGHT):
         for j in range(WIDTH):
             vis_maze = render_cell(maze[i][j], vis_maze, i, j)
-
     return vis_maze, len(vis_maze[0]), len(vis_maze)
 
 
 def printing_path(maze, entry, exit_pos, path):
+    if isinstance(entry, str):
+        entry = entry.split(",")
+    if isinstance(exit_pos, str):
+        exit_pos = exit_pos.split(",")
+
     HEIGHT = len(maze)
     WIDTH = len(maze[0])
     vis_path = [[" "] * (WIDTH * 2 + 1) for _ in range(HEIGHT * 2 + 1)]
-
     X, Y = int(entry[0]) * 2 + 1, int(entry[1]) * 2 + 1
     vis_path[Y][X] = "*"
-
     for go_to in path:
         X, Y, vis_path = add_cell(X, Y, go_to, vis_path)
-
     vis_path[int(exit_pos[1])*2+1][int(exit_pos[0])*2+1] = ' '
     return vis_path
-
 
 def add_cell(X, Y, go_to, vis_path):
     max_row = len(vis_path) - 1
     max_col = len(vis_path[0]) - 1
-
     if go_to == "N":
         if Y - 1 >= 0:
             vis_path[Y-1][X] = "*"
         if Y - 2 >= 0:
             vis_path[Y-2][X] = "*"
         return X, max(Y - 2, 0), vis_path
-
     if go_to == "E":
         if X + 1 <= max_col:
             vis_path[Y][X+1] = "*"
         if X + 2 <= max_col:
             vis_path[Y][X+2] = "*"
         return min(X + 2, max_col), Y, vis_path
-
     if go_to == "S":
         if Y + 1 <= max_row:
             vis_path[Y+1][X] = "*"
         if Y + 2 <= max_row:
             vis_path[Y+2][X] = "*"
         return X, min(Y + 2, max_row), vis_path
-
     if go_to == "W":
         if X - 1 >= 0:
             vis_path[Y][X-1] = "*"

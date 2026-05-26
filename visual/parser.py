@@ -1,4 +1,3 @@
-
 def parser():
     maze = []
     entry = None
