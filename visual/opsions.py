@@ -125,6 +125,9 @@ def ascii_uitput(message, sizeX, sizeY, dic):
                 if input("want to change the settings (Y/N): ") == "Y":
                     dic["HEIGHT"] = int(input(f"current height is {dic.get('HEIGHT')}. Enter the height: "))
                     dic["WIDTH"] = int(input(f"current width is {dic.get('WIDTH')}. Enter the width: "))
+                    dic["ENTRY"] = input(f"current entry is {dic.get('ENTRY')}. Enter the entry: ")
+                    dic["EXIT"] = input(f"current exit is {dic.get('EXIT')}. Enter the exit: ")
+
                 m = MazeGenerator(
                         int(dic.get("HEIGHT")),
                         int(dic.get("WIDTH")), str(dic.get("PERFECT")),
@@ -138,23 +141,22 @@ def ascii_uitput(message, sizeX, sizeY, dic):
             except Exception as e:
                 print(f"Error occurred: {e}")
                 continue
+            exit_pos = dic.get('EXIT').split(",")
+            exit_posX, exit_posY = int(exit_pos[0]), int(exit_pos[1])
+            entry = dic.get('ENTRY').split(",")
+            entryX, entryY = int(entry[0]), int(entry[1])
             with open("maze.txt", "a") as f:
                 f.write("\n" + ", ".join(str(int(v))
                         for v in dic.get("ENTRY").split(",")))
                 f.write("\n" + ", ".join(str(int(v))
                         for v in dic.get("EXIT").split(",")))
                 f.write("\n" + "".join(route))
-            message[:] = tmp_name()[0]
+            message, sizeX, sizeY = tmp_name()
             if path_is[1]:
                 maze, entry, exit_pos, path = parser()
                 path_is[2] = printing_path(maze, entry, exit_pos, path)
             needs_redraw[0] = True
             mlx.mlx_destroy_window(ptr, window[0])
-            window[0] = mlx.mlx_new_window(
-                ptr,
-                dic["WIDTH"] * 2 * chr_weight,
-                dic["HEIGHT"] * 2 * line_height,
-                maze_name
-            )
+            window[0] = mlx.mlx_new_window(ptr, sizeX * chr_weight, sizeY * line_height, maze_name)
             t = threading.Thread(target=mlx.mlx_loop, args=(ptr,), daemon=True)
             t.start()
