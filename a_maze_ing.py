@@ -3,8 +3,9 @@ from mazegen import MazeGenerator
 from visual import tmp_name
 from visual import ascii_uitput
 
-
 if __name__ == "__main__":
+
+
     try:
         name = sys.argv
         dic = dict()

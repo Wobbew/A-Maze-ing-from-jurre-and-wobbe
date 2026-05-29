@@ -13,6 +13,10 @@ KEY_ESCAPE = 65307
 needs_redraw = [True]
 path_is = ["on", False, None]
 maze_name = "maze"
+PERFECT_MESSAGE = None
+window = [None]
+line_height = 15
+chr_weight = 10
 colors = {
     "white":   0xFFFFFF,
     "red":     0x0000FF,
@@ -26,10 +30,12 @@ colors = {
 
 
 def ascii_uitput(message, sizeX, sizeY, dic):
-    line_height = 15
-    chr_weight = 10
-    window = mlx.mlx_new_window(ptr, sizeX * chr_weight, sizeY * line_height,
-                                maze_name)
+    if dic.get("PERFECT"):
+        PERFECT_MESSAGE = dic.get("PERFECT")
+    global line_height
+    global chr_weight
+    window[0] = mlx.mlx_new_window(ptr, sizeX * chr_weight, sizeY * line_height,
+                                   maze_name)
     maze, entry, exit_pos, path = parser()
     exit_pos = exit_pos.split(",")
     exit_posX, exit_posY = int(exit_pos[0]), int(exit_pos[1])
@@ -42,23 +48,22 @@ def ascii_uitput(message, sizeX, sizeY, dic):
             return
         needs_redraw[0] = False
 
-        mlx.mlx_clear_window(ptr, window)
+        mlx.mlx_clear_window(ptr, window[0])
         for _ in range(2):
             for i, row in enumerate(message):
                 line = "".join(str(cell) for cell in row)
-                mlx.mlx_string_put(ptr, window, 0, i * line_height, color[0],
+                mlx.mlx_string_put(ptr, window[0], 0, i * line_height, color[0],
                                    line)
-        mlx.mlx_string_put(ptr, window, ((entryX * 2) + 1) * chr_weight, (
-            (entryY * 2) + 1) * line_height, color[1], "S")
-
-        mlx.mlx_string_put(ptr, window, ((exit_posX * 2) + 1) * chr_weight, (
-            (exit_posY * 2) + 1) * line_height, color[1], "E")
+        mlx.mlx_string_put(ptr, window[0], ((entryX * 2) + 1) * chr_weight,
+                           ((entryY * 2) + 1) * line_height, color[1], "S")
+        mlx.mlx_string_put(ptr, window[0], ((exit_posX * 2) + 1) * chr_weight,
+                           ((exit_posY * 2) + 1) * line_height, color[1], "E")
 
         if path_is[1]:
             for _ in range(2):
                 for i, row in enumerate(path_is[2]):
                     line = "".join(str(cell) for cell in row)
-                    mlx.mlx_string_put(ptr, window, 0, i * line_height,
+                    mlx.mlx_string_put(ptr, window[0], 0, i * line_height,
                                        color[1], line)
 
     mlx.mlx_loop_hook(ptr, render, None)
@@ -114,24 +119,42 @@ def ascii_uitput(message, sizeX, sizeY, dic):
         if i == "5":
             render_path(path, entry, exit_pos, maze)
         if i == "6":
-            m = MazeGenerator(
-                    int(dic.get("HEIGHT")),
-                    int(dic.get("WIDTH")), str(dic.get("PERFECT")),
-                    tuple(int(v) for v in dic.get("ENTRY").split(",")),
-                    tuple(int(v) for v in dic.get("EXIT").split(",")),
-                    dic.get("SEED")
-                )
-            m.maze_gen()
-            m.write_hex("maze.txt")
-            route = m.solve()
+            mlx.mlx_loop_exit(ptr)
+            t.join()
+            try:
+                if input("want to change the settings (Y/N): ") == "Y":
+                    dic["HEIGHT"] = int(input(f"current height is {dic.get('HEIGHT')}. Enter the height: "))
+                    dic["WIDTH"] = int(input(f"current width is {dic.get('WIDTH')}. Enter the width: "))
+                m = MazeGenerator(
+                        int(dic.get("HEIGHT")),
+                        int(dic.get("WIDTH")), str(dic.get("PERFECT")),
+                        tuple(int(v) for v in dic.get("ENTRY").split(",")),
+                        tuple(int(v) for v in dic.get("EXIT").split(",")),
+                        dic.get("SEED")
+                    )
+                m.maze_gen()
+                m.write_hex("maze.txt")
+                route = m.solve()
+            except Exception as e:
+                print(f"Error occurred: {e}")
+                continue
             with open("maze.txt", "a") as f:
                 f.write("\n" + ", ".join(str(int(v))
                         for v in dic.get("ENTRY").split(",")))
                 f.write("\n" + ", ".join(str(int(v))
                         for v in dic.get("EXIT").split(",")))
                 f.write("\n" + "".join(route))
-            message, X, Y = tmp_name()
+            message[:] = tmp_name()[0]
             if path_is[1]:
                 maze, entry, exit_pos, path = parser()
                 path_is[2] = printing_path(maze, entry, exit_pos, path)
             needs_redraw[0] = True
+            mlx.mlx_destroy_window(ptr, window[0])
+            window[0] = mlx.mlx_new_window(
+                ptr,
+                dic["WIDTH"] * 2 * chr_weight,
+                dic["HEIGHT"] * 2 * line_height,
+                maze_name
+            )
+            t = threading.Thread(target=mlx.mlx_loop, args=(ptr,), daemon=True)
+            t.start()
