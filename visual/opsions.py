@@ -123,10 +123,40 @@ def ascii_uitput(message, sizeX, sizeY, dic):
             t.join()
             try:
                 if input("want to change the settings (Y/N): ") == "Y":
-                    dic["HEIGHT"] = int(input(f"current height is {dic.get('HEIGHT')}. Enter the height: "))
-                    dic["WIDTH"] = int(input(f"current width is {dic.get('WIDTH')}. Enter the width: "))
-                    dic["ENTRY"] = input(f"current entry is {dic.get('ENTRY')}. Enter the entry: ")
-                    dic["EXIT"] = input(f"current exit is {dic.get('EXIT')}. Enter the exit: ")
+                    tmp = input(
+                        "current height is "
+                        f"{dic.get('HEIGHT')}. Enter the height: ")
+                    if tmp.isdigit():
+                        dic["HEIGHT"] = tmp
+                        print(tmp)
+                    else:
+                        print("not a valid input")
+                    tmp = input(f"current width is {dic.get('WIDTH')}. Enter the width: ")
+                    print(tmp)
+                    if tmp.isdigit():
+                        dic["WIDTH"] = tmp
+                    else:
+                        print("not a valid input")
+                    tmp = input(f"current entry is {dic.get('ENTRY')}. Enter the entry: ")
+                    if tmp.count(",") == 1 and all(part.strip().isdigit() for part in tmp.split(",")):
+                        dic["ENTRY"] = tmp
+                    else:
+                        print(f"{tmp} is not a valid entry point")
+                    tmp = input(f"current exit is {dic.get('EXIT')}. Enter the exit: ")
+                    if tmp.count(",") == 1 and all(part.strip().isdigit() for part in tmp.split(",")):
+                        dic["EXIT"] = tmp
+                    else:
+                        print("not a valid input")
+                    if input(f"current perfect is {dic.get('PERFECT')}. Enter 'Y' to change: ") == "Y":
+                        if dic["PERFECT"] == "True":
+                            dic["PERFECT"] = "False"
+                        else:
+                            dic["PERFECT"] = "True"
+                    tmp = input(f"current seed is {dic.get('SEED')}, 0 is random. Enter the seed: ")
+                    if tmp.isdigit():
+                        dic["SEED"] = tmp
+                    else:
+                        print("not a valid input")
 
                 m = MazeGenerator(
                         int(dic.get("HEIGHT")),
@@ -157,6 +187,7 @@ def ascii_uitput(message, sizeX, sizeY, dic):
                 path_is[2] = printing_path(maze, entry, exit_pos, path)
             needs_redraw[0] = True
             mlx.mlx_destroy_window(ptr, window[0])
-            window[0] = mlx.mlx_new_window(ptr, sizeX * chr_weight, sizeY * line_height, maze_name)
+            window[0] = mlx.mlx_new_window(ptr, sizeX * chr_weight,
+                                           sizeY * line_height, maze_name)
             t = threading.Thread(target=mlx.mlx_loop, args=(ptr,), daemon=True)
             t.start()

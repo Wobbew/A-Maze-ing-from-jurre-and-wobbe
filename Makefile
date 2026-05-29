@@ -1,22 +1,40 @@
 VENV    = .venv
-PYTHON  = $(VENV)/bin/python
+PYTHON  = $(VENV)/bin/python3
 PIP     = $(VENV)/bin/pip
 
 .PHONY: build run clean shell
 
-install:
-	echo "making Virtual environment"
+build:
+	python3 -m build
+	cp ./dist/mazegen-1.0.0-py3-none-any.whl .
+
+debug:
+	python3 -m pdb a_maze_ing.py default_config.txt
+
+venv:
 	python3 -m venv $(VENV)
+	@echo "Virtual environment created!"
+
+install: venv
 	$(PIP) install --upgrade pip
 	$(PIP) install -r requirements.txt
-	tar -xvzf mlx_CLXV-2.2.tgz
-	cd mlx_CLXV && PATH=$(VENV)/bin:$$PATH $(MAKE)
-	$(PIP) install mlx_CLXV/python/dist/mlx-2.2-py3-none-any.whl
+	$(PIP) install mlx-2.2-py3-none-any.whl
 
+clean:
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+	rm -rf .mypy_cache
 
 run:
 	$(PYTHON) a_maze_ing.py config.txt
 
-clean:
-	rm -rf $(VENV)
-	find . -type f -name '*.pyc' -delete
+
+lint:
+	flake8 --exclude=.venv,mlx .
+	python3 -m mypy . \
+		--warn-return-any \
+		--warn-unused-ignores \
+		--ignore-missing-imports \
+		--disallow-untyped-defs \
+		--check-untyped-defs \
+		--explicit-package-bases \
+		--exclude '^(venv|\.venv|env|mlx)/'
