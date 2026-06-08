@@ -1,8 +1,21 @@
 import random
+from typing import List, Tuple, Dict, Any, Optional
+
+from verify import verify
 
 
 class MazeGenerator:
-    def __init__(self, height, width, perfect, entry, exit, seed):
+    def __init__(
+            self,
+            height: int,
+            width: int,
+            perfect: bool,
+            entry: Tuple[int, int],
+            exit: Tuple[int, int],
+            seed: str) -> None:
+        errors = verify(height, width, perfect, entry, exit, seed)
+        if errors is not None:
+            raise ValueError("\n".join(errors))
         self.height = height
         self.width = width
         self.perfect = perfect
@@ -13,15 +26,15 @@ class MazeGenerator:
         else:
             random.seed()
 
-    def write_hex(self, filename="maze.txt"):
+    def write_hex(self, filename: str = "maze.txt") -> None:
         with open(filename, "w") as f:
             for row in self.list_dict:
-                line = ""
+                line = ""  # type: str
                 for cell in row:
                     line += format(cell["walls"], "X")
                 f.write(line + "\n")
 
-    def logostamp(self):
+    def logostamp(self) -> int:
         placeable = False
         for y in range(self.height):
             for x in range(self.width):
@@ -39,8 +52,8 @@ class MazeGenerator:
                 self.marked += 1
         return self.marked
 
-    def hardlogo(self, x, y) -> bool:
-        fortytwo = [[x - 3, y - 2],
+    def hardlogo(self, x: int, y: int) -> bool:
+        fortytwo: List[List[int]] = [[x - 3, y - 2],
                     [x - 3, y - 1],
                     [x - 3, y],
                     [x - 2, y],
@@ -67,9 +80,9 @@ class MazeGenerator:
                 return False
         return True
 
-    def maze_gen(self):
+    def maze_gen(self) -> List[List[Dict[str, Any]]]:
         total = self.width * self.height
-        list_dict = [[{"marked": False, "walls": 0b1111}
+        list_dict: List[List[Dict[str, Any]]] = [[{"marked": False, "walls": 0b1111}
                       for _ in range(self.width)] for _ in range(self.height)]
         self.list_dict = list_dict
         x, y = self.entry
@@ -77,7 +90,7 @@ class MazeGenerator:
         self.y = y
         marked = 0
         self.marked = marked
-        last_multioption = []
+        last_multioption: List[List[int]] = []
         marked = self.logostamp()
         while marked != total:
             if list_dict[y][x]["walls"] not in (1, 2, 4, 8):
@@ -95,7 +108,7 @@ class MazeGenerator:
                     for i in range(self.height):
                         for j in range(self.width):
                             if list_dict[i][j]["marked"] and \
-                                list_dict[i][j]["walls"] not in (1, 2, 4, 8):
+                               list_dict[i][j]["walls"] not in (1, 2, 4, 8):
                                 last_multioption.append([j, i])
                     if not last_multioption:
                         print("Error: No more options available")
@@ -128,7 +141,7 @@ class MazeGenerator:
         return list_dict
 
     def Random(self) -> str:
-        choice = []
+        choice: List[str] = []
         x = self.x
         y = self.y
         if x > 0 and self.list_dict[y][x - 1]["marked"] is False:
@@ -141,13 +154,13 @@ class MazeGenerator:
             choice.append("S")
         if choice == []:
             return "Error"
-        choice = random.choice(choice)
-        return choice
+        choice_val = random.choice(choice)
+        return choice_val
 
-    def solve(self) -> list:
-        loc_route = []
-        route = []
-        location = self.entry
+    def solve(self) -> List[str]:
+        loc_route: List[Tuple[int, int]] = []
+        route: List[str] = []
+        location: Tuple[int, int] = self.entry
         self.checked = [self.entry]
         while location != self.exit:
             choice = self.choice(location)
@@ -172,9 +185,9 @@ class MazeGenerator:
             self.checked.append(location)
         return route
 
-    def choice(self, location):
+    def choice(self, location: Tuple[int, int]) -> Optional[str]:
         x, y = location
-        options = []
+        options: List[str] = []
         if self.list_dict[y][x]["walls"] & 0b0001 == 0 \
                 and (x, y - 1) not in self.checked:
             options.append("N")
@@ -187,8 +200,5 @@ class MazeGenerator:
         if self.list_dict[y][x]["walls"] & 0b1000 == 0 \
                 and (x - 1, y) not in self.checked:
             options.append("W")
-        choice = random.choice(options) if options else None
-        return choice
-
-
-
+        choice_val: Optional[str] = random.choice(options) if options else None
+        return choice_val

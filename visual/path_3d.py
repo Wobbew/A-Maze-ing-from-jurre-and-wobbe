@@ -2,8 +2,8 @@ import time
 from mlx import Mlx
 from .render_3d import player, find_walls, clear_images
 
+
 def render_path(path, entry, exit, maze):
-    # Normalize: accept either a raw "x,y" string or an already-split list
     if isinstance(entry, str):
         entry = entry.split(",")
     if isinstance(exit, str):
@@ -27,6 +27,7 @@ def render_path(path, entry, exit, maze):
     find_walls(p, window, mlx, ptr)
     mlx.mlx_loop(ptr)
     clear_images()
+
 
 def move_step(state):
     if time.time() - state["last_time"] < state["delay"]:

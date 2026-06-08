@@ -3,6 +3,7 @@ PYTHON  = $(VENV)/bin/python3
 PIP     = $(VENV)/bin/pip
 
 .PHONY: build run clean shell
+.PHONY: check lint
 
 build:
 	python3 -m build
@@ -38,3 +39,6 @@ lint:
 		--check-untyped-defs \
 		--explicit-package-bases \
 		--exclude '^(venv|\.venv|env|mlx)/'
+
+check: lint
+	@echo "Completed checks"

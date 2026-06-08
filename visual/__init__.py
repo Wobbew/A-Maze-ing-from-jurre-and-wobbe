@@ -1,5 +1,5 @@
 from .printing_ascii import tmp_name
-from .opsions import ascii_uitput
+from .opsions import ascii_output
 from .parser import parser
 
-__all__ = ["tmp_name", "ascii_uitput", "parser"]
+__all__ = ["tmp_name", "ascii_output", "parser"]

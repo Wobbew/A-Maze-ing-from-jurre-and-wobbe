@@ -50,21 +50,21 @@ def place_ascii(walls, vis_maze, i, j):
     if walls[2] and walls[1]:
         vis_maze[bottom][right] = '+'
     if walls[0] and walls[1] and walls[2] and walls[3]:
-        vis_maze[top+1][left+1] = '+'
+        vis_maze[top + 1][left + 1] = '+'
     return vis_maze
 
 
-def place_MLX(walls):
+def place_mlx(walls):
     pass
 
 
 def tmp_name():
     maze, entry, exit_pos, path = parser()
-    HEIGHT = len(maze)
-    WIDTH = len(maze[0])
-    vis_maze = [[" "] * (WIDTH * 2 + 1) for _ in range(HEIGHT * 2 + 1)]
-    for i in range(HEIGHT):
-        for j in range(WIDTH):
+    height = len(maze)
+    width = len(maze[0])
+    vis_maze = [[" "] * (width * 2 + 1) for _ in range(height * 2 + 1)]
+    for i in range(height):
+        for j in range(width):
             vis_maze = render_cell(maze[i][j], vis_maze, i, j)
     return vis_maze, len(vis_maze[0]), len(vis_maze)
 
@@ -74,41 +74,41 @@ def printing_path(maze, entry, exit_pos, path):
         entry = entry.split(",")
     if isinstance(exit_pos, str):
         exit_pos = exit_pos.split(",")
-
-    HEIGHT = len(maze)
-    WIDTH = len(maze[0])
-    vis_path = [[" "] * (WIDTH * 2 + 1) for _ in range(HEIGHT * 2 + 1)]
-    X, Y = int(entry[0]) * 2 + 1, int(entry[1]) * 2 + 1
-    vis_path[Y][X] = "*"
+    height = len(maze)
+    width = len(maze[0])
+    vis_path = [[" "] * (width * 2 + 1) for _ in range(height * 2 + 1)]
+    x, y = int(entry[0]) * 2 + 1, int(entry[1]) * 2 + 1
+    vis_path[y][x] = "*"
     for go_to in path:
-        X, Y, vis_path = add_cell(X, Y, go_to, vis_path)
-    vis_path[int(exit_pos[1])*2+1][int(exit_pos[0])*2+1] = ' '
+        x, y, vis_path = add_cell(x, y, go_to, vis_path)
+    vis_path[int(exit_pos[1]) * 2 + 1][int(exit_pos[0]) * 2 + 1] = ' '
     return vis_path
 
-def add_cell(X, Y, go_to, vis_path):
+
+def add_cell(x, y, go_to, vis_path):
     max_row = len(vis_path) - 1
     max_col = len(vis_path[0]) - 1
     if go_to == "N":
-        if Y - 1 >= 0:
-            vis_path[Y-1][X] = "*"
-        if Y - 2 >= 0:
-            vis_path[Y-2][X] = "*"
-        return X, max(Y - 2, 0), vis_path
+        if y - 1 >= 0:
+            vis_path[y - 1][x] = "*"
+        if y - 2 >= 0:
+            vis_path[y - 2][x] = "*"
+        return x, max(y - 2, 0), vis_path
     if go_to == "E":
-        if X + 1 <= max_col:
-            vis_path[Y][X+1] = "*"
-        if X + 2 <= max_col:
-            vis_path[Y][X+2] = "*"
-        return min(X + 2, max_col), Y, vis_path
+        if x + 1 <= max_col:
+            vis_path[y][x + 1] = "*"
+        if x + 2 <= max_col:
+            vis_path[y][x + 2] = "*"
+        return min(x + 2, max_col), y, vis_path
     if go_to == "S":
-        if Y + 1 <= max_row:
-            vis_path[Y+1][X] = "*"
-        if Y + 2 <= max_row:
-            vis_path[Y+2][X] = "*"
-        return X, min(Y + 2, max_row), vis_path
+        if y + 1 <= max_row:
+            vis_path[y + 1][x] = "*"
+        if y + 2 <= max_row:
+            vis_path[y + 2][x] = "*"
+        return x, min(y + 2, max_row), vis_path
     if go_to == "W":
-        if X - 1 >= 0:
-            vis_path[Y][X-1] = "*"
-        if X - 2 >= 0:
-            vis_path[Y][X-2] = "*"
-        return max(X - 2, 0), Y, vis_path
+        if x - 1 >= 0:
+            vis_path[y][x - 1] = "*"
+        if x - 2 >= 0:
+            vis_path[y][x - 2] = "*"
+        return max(x - 2, 0), y, vis_path
