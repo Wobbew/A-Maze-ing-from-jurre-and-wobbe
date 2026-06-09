@@ -180,8 +180,7 @@ def ascii_output(message, sizeX, sizeY, dic):
 
                 perf_raw = dic.get("PERFECT")
                 perf_val = (
-                    str(perf_raw).strip().lower() in (
-                        "1", "true", "t", "y", "yes")
+                    str(perf_raw).strip().lower() in ("true")
                     if perf_raw is not None
                     else False
                 )

@@ -25,16 +25,12 @@ def parse_config(path: str) -> Dict[str, str]:
 
 
 def parse_bool(val: str) -> bool:
-    """Parse a boolean-like string into a bool.
-
-    Recognises true/1/y/yes on (case-insensitive).
-    """
     if isinstance(val, bool):
         return val
     if val is None:
         raise ValueError("Missing boolean value")
     v = val.strip().lower()
-    return v in ("1", "true", "t", "y", "yes")
+    return v in ("true",)
 
 
 def parse_coord(text: str) -> Tuple[int, int]:
@@ -55,8 +51,6 @@ if __name__ == "__main__":
     except FileNotFoundError:
         print("File not found")
         sys.exit(2)
-
-    # Required keys
     required = ("WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT")
     missing = [k for k in required if k not in dic]
     if missing:
