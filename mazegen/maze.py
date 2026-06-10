@@ -1,6 +1,7 @@
 import random
 from typing import List, Tuple, Dict, Any, Optional, Sequence, Union
 
+
 def verify(
     height: int,
     width: int,
@@ -83,6 +84,7 @@ class MazeGenerator:
                 break
         if not placeable:
             print("42error: No available space to place 42")
+            self.fortytwo = []
         else:
             for n in self.fortytwo:
                 xtmp, ytmp = n
@@ -116,7 +118,24 @@ class MazeGenerator:
                 return False
             if list(loc) == list(self.entry) or list(loc) == list(self.exit):
                 return False
-        return True
+        return self.connected(fortytwo)
+
+    def connected(self, fortytwo: List[List[int]]) -> bool:
+        blocked = {(lx, ly) for lx, ly in fortytwo}
+        total_open = self.width * self.height - len(blocked)
+        start: Tuple[int, int] = (self.entry[0], self.entry[1])
+        seen = {start}
+        stack = [start]
+        while stack:
+            cx, cy = stack.pop()
+            for nx, ny in ((cx + 1, cy), (cx - 1, cy),
+                           (cx, cy + 1), (cx, cy - 1)):
+                if 0 <= nx < self.width and 0 <= ny < self.height \
+                        and (nx, ny) not in blocked \
+                        and (nx, ny) not in seen:
+                    seen.add((nx, ny))
+                    stack.append((nx, ny))
+        return len(seen) == total_open
 
     def maze_gen(self) -> List[List[Dict[str, Any]]]:
         total = self.width * self.height
@@ -126,7 +145,8 @@ class MazeGenerator:
         x, y = self.entry
         self.x = x
         self.y = y
-        marked = 0
+        marked = 1
+        list_dict[y][x]["marked"] = True
         self.marked = marked
         last_multioption: List[List[int]] = []
         marked = self.logostamp()
@@ -145,8 +165,16 @@ class MazeGenerator:
                 while choice == "Error" and not last_multioption:
                     for i in range(self.height):
                         for j in range(self.width):
-                            if list_dict[i][j]["marked"] and \
-                               list_dict[i][j]["walls"] not in (1, 2, 4, 8):
+                            if not list_dict[i][j]["marked"] \
+                                    or [j, i] in self.fortytwo:
+                                continue
+                            if (i > 0 and not list_dict[i - 1][j]["marked"]) \
+                                or (i < self.height - 1
+                                    and not list_dict[i + 1][j]["marked"]) \
+                                or (j > 0
+                                    and not list_dict[i][j - 1]["marked"]) \
+                                or (j < self.width - 1
+                                    and not list_dict[i][j + 1]["marked"]):
                                 last_multioption.append([j, i])
                     if not last_multioption:
                         print("Error: No more options available")
