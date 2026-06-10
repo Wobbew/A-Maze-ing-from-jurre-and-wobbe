@@ -30,8 +30,8 @@ run:
 
 
 lint:
-	flake8 --exclude=.venv,mlx .
-	python3 -m mypy . \
+	$(PYTHON) -m flake8 --exclude=.venv,mlx .
+	$(PYTHON) -m python3 -m mypy . \
 		--warn-return-any \
 		--warn-unused-ignores \
 		--ignore-missing-imports \
