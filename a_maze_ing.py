@@ -74,7 +74,7 @@ if __name__ == "__main__":
         m = MazeGenerator(height, width, perfect, entry, exit_coord, seed)
         m.maze_gen()
         m.write_hex(output_file)
-        route = m.solve()
+        route = m.quickest()
         with open(output_file, "a") as f:
             f.write("\n" + ", ".join(str(int(v)) for v in entry))
             f.write("\n" + ", ".join(str(int(v)) for v in exit_coord))

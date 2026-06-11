@@ -223,48 +223,40 @@ class MazeGenerator:
         choice_val = random.choice(choice)
         return choice_val
 
-    def solve(self) -> List[str]:
-        loc_route: List[Tuple[int, int]] = []
-        route: List[str] = []
-        location: Tuple[int, int] = self.entry
-        self.checked = [self.entry]
-        while location != self.exit:
-            choice = self.choice(location)
-            while choice is None:
-                if loc_route:
-                    location = loc_route.pop()
-                    route.pop()
-                    choice = self.choice(location)
-                else:
-                    print("Error: No more options available")
-                    return []
-            loc_route.append(location)
-            route.append(choice)
-            if choice == "N":
-                location = (location[0], location[1] - 1)
-            elif choice == "S":
-                location = (location[0], location[1] + 1)
-            elif choice == "E":
-                location = (location[0] + 1, location[1])
-            elif choice == "W":
-                location = (location[0] - 1, location[1])
-            self.checked.append(location)
-        return route
+    def solve(self) -> List[List[str]]:
+        moves = {"N": (0, -1), "E": (1, 0), "S": (0, 1), "W": (-1, 0)}
+        wall_bits = {"N": 0b0001, "E": 0b0010, "S": 0b0100, "W": 0b1000}
+        self.moves = moves
+        self.wall_bits = wall_bits
+        routes: List[List[str]] = []
+        self._explore(self.entry, [self.entry], [], routes)
+        if not routes:
+            print("Error: No more options available")
+        return routes
 
-    def choice(self, location: Tuple[int, int]) -> Optional[str]:
+    def _explore(self, location, loc_route, route, routes) -> None:
+        if location == self.exit:
+            routes.append(route.copy())
+            return
+        for direction in self.options(location, loc_route):
+            dx, dy = self.moves[direction]
+            nxt = (location[0] + dx, location[1] + dy)
+            loc_route.append(nxt)
+            route.append(direction)
+            self._explore(nxt, loc_route, route, routes)
+            loc_route.pop()   # backtrack: free the cell for other branches
+            route.pop()
+
+    def options(self, location, loc_route) -> List[str]:
         x, y = location
-        options: List[str] = []
-        if self.list_dict[y][x]["walls"] & 0b0001 == 0 \
-                and (x, y - 1) not in self.checked:
-            options.append("N")
-        if self.list_dict[y][x]["walls"] & 0b0010 == 0 \
-                and (x + 1, y) not in self.checked:
-            options.append("E")
-        if self.list_dict[y][x]["walls"] & 0b0100 == 0 \
-                and (x, y + 1) not in self.checked:
-            options.append("S")
-        if self.list_dict[y][x]["walls"] & 0b1000 == 0 \
-                and (x - 1, y) not in self.checked:
-            options.append("W")
-        choice_val: Optional[str] = random.choice(options) if options else None
-        return choice_val
+        opts = []
+        for direction, (dx, dy) in self.moves.items():
+            if self.list_dict[y][x]["walls"] & self.wall_bits[direction] == 0 \
+                    and (x + dx, y + dy) not in loc_route:
+                opts.append(direction)
+        return opts
+
+    def quickest(self) -> list:
+        routes = self.solve()
+        route = min(routes, key=len)
+        return route
