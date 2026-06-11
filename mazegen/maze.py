@@ -84,7 +84,7 @@ class MazeGenerator:
             if placeable:
                 break
         if not placeable:
-            print("42error: No available space to place 42")
+            self.error_meg = "42error: No available space to place 42"
             self.fortytwo = []
         else:
             for n in self.fortytwo:
@@ -203,7 +203,6 @@ class MazeGenerator:
             if not list_dict[y][x]["marked"]:
                 list_dict[y][x]["marked"] = True
                 marked += 1
-        print(marked)
         self.list_dict = list_dict
         if self.perfect is False or self.perfect == "False":
             self.inperfect()
