@@ -1,8 +1,8 @@
-def parser():
-    maze = []
-    entry = None
-    exit_pos = None
-    path = None
+def parser() -> tuple[list[list[int]], str, str, str]:
+    maze: list[list[int]] = []
+    entry: str = ""
+    exit_pos: str = ""
+    path: str = ""
     with open("maze.txt", "r") as file:
         for line in file:
             line = line.strip()

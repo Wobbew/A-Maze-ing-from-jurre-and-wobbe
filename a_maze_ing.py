@@ -2,15 +2,11 @@ import sys
 from typing import Dict, Tuple
 
 from mazegen import MazeGenerator
-from visual import tmp_name
+from visual import make_canvas
 from visual import ascii_output
 
 
 def parse_config(path: str) -> Dict[str, str]:
-    """Read KEY=VALUE lines from path into a dict.
-
-    Ignore comments and blank lines.
-    """
     d: Dict[str, str] = {}
     with open(path, "r") as f:
         for raw in f:
@@ -85,7 +81,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        message, X, Y = tmp_name()
-        ascii_output(message, X, Y, dic)
+        message, X, Y = make_canvas()
+        ascii_output(message, X, Y, dic, m.error_meg or "")
     except Exception as e:
         print(f"Visualisation failed: {e}")

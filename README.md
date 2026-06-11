@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by Wobbew.*
+*This project has been created as part of the 42 curriculum by jstomps and wwiedijk.*
 
 # A-Maze-ing
 
@@ -11,10 +11,9 @@ packaged as a reusable module `mazegen.py`.
 
 Instructions
 ------------
-- Install dependencies (recommended in a virtualenv).
 - Run the generator:
 
-		python3 a_maze_ing.py config.txt
+		make 
 
 The program reads the provided config file and writes the maze to the
 OUTPUT_FILE specified in the config (defaults to `maze.txt`).

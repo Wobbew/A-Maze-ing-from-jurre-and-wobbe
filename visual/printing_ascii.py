@@ -1,7 +1,15 @@
 from .parser import parser
 
+VisMaze = list[list[str]]
 
-def render_cell(num, vis_maze, i, j, mode="ascii"):
+
+def render_cell(
+    num: int,
+    vis_maze: VisMaze,
+    i: int,
+    j: int,
+    mode: str = "ascii",
+) -> VisMaze:
     walls = [False, False, False, False]
     if num >= 8:
         num -= 8
@@ -20,7 +28,12 @@ def render_cell(num, vis_maze, i, j, mode="ascii"):
     return vis_maze
 
 
-def place_ascii(walls, vis_maze, i, j):
+def place_ascii(
+    walls: list[bool],
+    vis_maze: VisMaze,
+    i: int,
+    j: int,
+) -> VisMaze:
     left = j * 2
     right = j * 2 + 2
     top = i * 2
@@ -54,29 +67,38 @@ def place_ascii(walls, vis_maze, i, j):
     return vis_maze
 
 
-def place_mlx(walls):
+def place_mlx(walls: list[bool]) -> None:
     pass
 
 
-def tmp_name():
+def make_canvas() -> tuple[VisMaze, int, int]:
     maze, entry, exit_pos, path = parser()
     height = len(maze)
     width = len(maze[0])
-    vis_maze = [[" "] * (width * 2 + 1) for _ in range(height * 2 + 1)]
+    vis_maze: VisMaze = [
+        [" "] * (width * 2 + 1) for _ in range(height * 2 + 1)
+    ]
     for i in range(height):
         for j in range(width):
             vis_maze = render_cell(maze[i][j], vis_maze, i, j)
     return vis_maze, len(vis_maze[0]), len(vis_maze)
 
 
-def printing_path(maze, entry, exit_pos, path):
+def printing_path(
+    maze: list[list[int]],
+    entry: str | list[str],
+    exit_pos: str | list[str],
+    path: list[str],
+) -> VisMaze:
     if isinstance(entry, str):
         entry = entry.split(",")
     if isinstance(exit_pos, str):
         exit_pos = exit_pos.split(",")
     height = len(maze)
     width = len(maze[0])
-    vis_path = [[" "] * (width * 2 + 1) for _ in range(height * 2 + 1)]
+    vis_path: VisMaze = [
+        [" "] * (width * 2 + 1) for _ in range(height * 2 + 1)
+    ]
     x, y = int(entry[0]) * 2 + 1, int(entry[1]) * 2 + 1
     vis_path[y][x] = "*"
     for go_to in path:
@@ -85,7 +107,12 @@ def printing_path(maze, entry, exit_pos, path):
     return vis_path
 
 
-def add_cell(x, y, go_to, vis_path):
+def add_cell(
+    x: int,
+    y: int,
+    go_to: str,
+    vis_path: VisMaze,
+) -> tuple[int, int, VisMaze]:
     max_row = len(vis_path) - 1
     max_col = len(vis_path[0]) - 1
     if go_to == "N":
@@ -112,3 +139,4 @@ def add_cell(x, y, go_to, vis_path):
         if x - 2 >= 0:
             vis_path[y][x - 2] = "*"
         return max(x - 2, 0), y, vis_path
+    return x, y, vis_path

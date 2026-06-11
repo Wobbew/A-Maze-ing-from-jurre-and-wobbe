@@ -43,5 +43,3 @@ lint:
 		--explicit-package-bases \
 		--exclude '^(venv|.venv|env|mlx)/'
 
-check: lint
-	@echo "Completed checks"

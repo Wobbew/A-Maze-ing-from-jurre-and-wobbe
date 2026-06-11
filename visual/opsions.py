@@ -4,19 +4,20 @@ from mazegen import MazeGenerator
 from .render_3d import render_3d
 from .path_3d import render_path
 from .parser import parser
-from .printing_ascii import printing_path, tmp_name
+from .printing_ascii import printing_path, make_canvas
 from mlx import Mlx
 
+VisMaze = list[list[str]]
 
 mlx = Mlx()
 ptr = mlx.mlx_init()
-needs_redraw = [True]
-path_is = ["on", False, None]
+needs_redraw: list[bool] = [True]
+path_is: list[object] = ["on", False, None]
 maze_name = "maze"
-window = [None]
+window: list[object] = [None]
 line_height = 15
 chr_weight = 10
-colors = {
+colors: dict[str, int] = {
     "white":   0xFFFFFF,
     "red":     0x0000FF,
     "green":   0x00FF00,
@@ -28,20 +29,25 @@ colors = {
 }
 
 
-def ascii_output(message, sizeX, sizeY, dic):
-    # global line_height, chr_weight
+def ascii_output(
+    message: VisMaze,
+    sizeX: int,
+    sizeY: int,
+    dic: dict[str, str],
+    error_meg: str,
+) -> None:
 
     window[0] = mlx.mlx_new_window(
         ptr, sizeX * chr_weight, sizeY * line_height, maze_name
     )
-    maze, entry, exit_pos, path = parser()
+    maze, entry, exit_pos, path_str = parser()
     exit_pos_parts = exit_pos.split(",")
     exit_posX, exit_posY = int(exit_pos_parts[0]), int(exit_pos_parts[1])
     entry_parts = entry.split(",")
     entryX, entryY = int(entry_parts[0]), int(entry_parts[1])
-    color = [0xFFFFFF, 0x0000FF]
+    color: list[int] = [0xFFFFFF, 0x0000FF]
 
-    def render(param):
+    def render(param: object) -> None:
         if not needs_redraw[0]:
             return
         needs_redraw[0] = False
@@ -67,8 +73,9 @@ def ascii_output(message, sizeX, sizeY, dic):
         )
 
         if path_is[1]:
+            vis: VisMaze = path_is[2]  # type: ignore[assignment]
             for _ in range(2):
-                for idx, row in enumerate(path_is[2]):
+                for idx, row in enumerate(vis):
                     line = "".join(str(cell) for cell in row)
                     mlx.mlx_string_put(
                         ptr, window[0], 0, idx * line_height, color[1], line
@@ -82,6 +89,8 @@ def ascii_output(message, sizeX, sizeY, dic):
     color_names = list(colors.keys())
     while t.is_alive():
         os.system("clear")
+        if error_meg:
+            print(error_meg)
         choice = input(
             "1 to Exit\n"
             "2 to change color\n"
@@ -112,13 +121,15 @@ def ascii_output(message, sizeX, sizeY, dic):
         if choice == "3":
             path_is[1] = not path_is[1]
             path_is[0] = "off" if path_is[1] else "on"
-            maze, entry, exit_pos, path = parser()
-            path_is[2] = printing_path(maze, entry, exit_pos, path)
+            maze, entry, exit_pos, path_str = parser()
+            path_is[2] = printing_path(
+                maze, entry, exit_pos, list(path_str)
+            )
             needs_redraw[0] = True
         if choice == "4":
             render_3d(maze, entry, exit_pos)
         if choice == "5":
-            render_path(path, entry, exit_pos, maze)
+            render_path(list(path_str), entry, exit_pos, maze)
         if choice == "6":
             mlx.mlx_loop_exit(ptr)
             t.join()
@@ -185,43 +196,55 @@ def ascii_output(message, sizeX, sizeY, dic):
                     else False
                 )
 
+                entry_xy: tuple[int, int] = (
+                    int(dic["ENTRY"].split(",")[0]),
+                    int(dic["ENTRY"].split(",")[1]),
+                )
+                exit_xy: tuple[int, int] = (
+                    int(dic["EXIT"].split(",")[0]),
+                    int(dic["EXIT"].split(",")[1]),
+                )
+                seed = dic.get("SEED") or "0"
                 m = MazeGenerator(
-                    int(dic.get("HEIGHT")),
-                    int(dic.get("WIDTH")),
+                    int(dic["HEIGHT"]),
+                    int(dic["WIDTH"]),
                     perf_val,
-                    tuple(int(v) for v in dic.get("ENTRY").split(",")),
-                    tuple(int(v) for v in dic.get("EXIT").split(",")),
-                    dic.get("SEED"),
+                    entry_xy,
+                    exit_xy,
+                    seed,
                 )
                 m.maze_gen()
                 m.write_hex("maze.txt")
                 route = m.quickest()
+                error_meg = m.error_meg or ""
             except Exception as e:
                 print(f"Error occurred: {e}")
                 continue
 
-            exit_pos_parts = dic.get("EXIT").split(",")
+            exit_pos_parts = dic["EXIT"].split(",")
             exit_posX = int(exit_pos_parts[0])
             exit_posY = int(exit_pos_parts[1])
-            entry_parts = dic.get("ENTRY").split(",")
+            entry_parts = dic["ENTRY"].split(",")
             entryX = int(entry_parts[0])
             entryY = int(entry_parts[1])
             with open("maze.txt", "a") as f:
                 f.write(
                     "\n" + ",".join(
-                        str(int(v)) for v in dic.get("ENTRY").split(",")
+                        str(int(v)) for v in dic["ENTRY"].split(",")
                     )
                 )
                 f.write(
                     "\n" + ",".join(
-                        str(int(v)) for v in dic.get("EXIT").split(",")
+                        str(int(v)) for v in dic["EXIT"].split(",")
                     )
                 )
                 f.write("\n" + "".join(route))
-            message, sizeX, sizeY = tmp_name()
+            message, sizeX, sizeY = make_canvas()
             if path_is[1]:
-                maze, entry, exit_pos, path = parser()
-                path_is[2] = printing_path(maze, entry, exit_pos, path)
+                maze, entry, exit_pos, path_str = parser()
+                path_is[2] = printing_path(
+                    maze, entry, exit_pos, list(path_str)
+                )
             needs_redraw[0] = True
             mlx.mlx_destroy_window(ptr, window[0])
             window[0] = mlx.mlx_new_window(
