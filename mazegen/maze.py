@@ -234,7 +234,7 @@ class MazeGenerator:
         self.moves = moves
         self.wall_bits = wall_bits
         routes: List[List[str]] = []
-        self._explore(self.entry, [self.entry], [], routes)
+        self.explore(self.entry, [self.entry], [], routes)
         if not routes:
             print("Error: No more options available")
         return routes
