@@ -65,7 +65,7 @@ class MazeGenerator:
             errors.append("seed error: must be an int or string")
 
         return errors if errors else None
-    
+
     def write_hex(self, filename: str = "maze.txt") -> None:
         with open(filename, "w") as f:
             for row in self.list_dict:
@@ -94,24 +94,25 @@ class MazeGenerator:
         return self.marked
 
     def hardlogo(self, x: int, y: int) -> bool:
-        fortytwo: List[List[int]] = [[x - 3, y - 2],
-                    [x - 3, y - 1],
-                    [x - 3, y],
-                    [x - 2, y],
-                    [x - 1, y],
-                    [x - 1, y + 1],
-                    [x - 1, y + 2],
-                    [x + 1, y - 2],
-                    [x + 2, y - 2],
-                    [x + 3, y - 2],
-                    [x + 3, y - 1],
-                    [x + 3, y],
-                    [x + 2, y],
-                    [x + 1, y],
-                    [x + 1, y + 1],
-                    [x + 1, y + 2],
-                    [x + 2, y + 2],
-                    [x + 3, y + 2]]
+        fortytwo: List[List[int]] = \
+            [[x - 3, y - 2],
+                [x - 3, y - 1],
+                [x - 3, y],
+                [x - 2, y],
+                [x - 1, y],
+                [x - 1, y + 1],
+                [x - 1, y + 2],
+                [x + 1, y - 2],
+                [x + 2, y - 2],
+                [x + 3, y - 2],
+                [x + 3, y - 1],
+                [x + 3, y],
+                [x + 2, y],
+                [x + 1, y],
+                [x + 1, y + 1],
+                [x + 1, y + 2],
+                [x + 2, y + 2],
+                [x + 3, y + 2]]
         self.fortytwo = fortytwo
         for loc in fortytwo:
             lx, ly = loc
@@ -140,8 +141,9 @@ class MazeGenerator:
 
     def maze_gen(self) -> List[List[Dict[str, Any]]]:
         total = self.width * self.height
-        list_dict: List[List[Dict[str, Any]]] = [[{"marked": False, "walls": 0b1111}
-                      for _ in range(self.width)] for _ in range(self.height)]
+        list_dict: List[List[Dict[str, Any]]] = \
+            [[{"marked": False, "walls": 0b1111}
+                for _ in range(self.width)] for _ in range(self.height)]
         self.list_dict = list_dict
         x, y = self.entry
         self.x = x
