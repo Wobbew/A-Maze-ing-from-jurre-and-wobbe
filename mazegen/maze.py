@@ -2,47 +2,6 @@ import random
 from typing import List, Tuple, Dict, Any, Optional, Sequence, Union
 
 
-def verify(
-    height: int,
-    width: int,
-    perfect: bool,
-    entry: Sequence[int] | Tuple[int, int],
-    exit: Sequence[int] | Tuple[int, int],
-    seed: Union[int, str],
-) -> Optional[List[str]]:
-    errors: List[str] = []
-
-    if not isinstance(height, int) or height <= 0:
-        errors.append("height error: must be a positive int")
-
-    if not isinstance(width, int) or width <= 0:
-        errors.append("width error: must be a positive int")
-
-    if not isinstance(perfect, bool):
-        errors.append("perfect error: must be True or False")
-
-    if not isinstance(entry, (list, tuple)) or len(entry) != 2:
-        errors.append("entry error: must be two ints separated by ','")
-    else:
-        ex, ey = entry
-        if not isinstance(ex, int) or not isinstance(ey, int) \
-                or ex < 0 or ex >= width or ey < 0 or ey >= height:
-            errors.append("entry error: coords must be within maze bounds")
-
-    if not isinstance(exit, (list, tuple)) or len(exit) != 2:
-        errors.append("exit error: must be two ints separated by ','")
-    else:
-        lx, ly = exit
-        if not isinstance(lx, int) or not isinstance(ly, int) \
-                or lx < 0 or lx >= width or ly < 0 or ly >= height:
-            errors.append("exit error: coords must be within maze bounds")
-
-    if not isinstance(seed, (int, str)):
-        errors.append("seed error: must be an int or string")
-
-    return errors if errors else None
-
-
 class MazeGenerator:
     def __init__(
             self,
@@ -52,7 +11,7 @@ class MazeGenerator:
             entry: Tuple[int, int],
             exit: Tuple[int, int],
             seed: str) -> None:
-        errors = verify(height, width, perfect, entry, exit, seed)
+        errors = self.verify(height, width, perfect, entry, exit, seed)
         if errors is not None:
             raise ValueError("\n".join(errors))
         self.height = height
@@ -60,11 +19,53 @@ class MazeGenerator:
         self.perfect = perfect
         self.entry = entry
         self.exit = exit
+        self.error_meg = None
         if seed != "0":
             random.seed(seed)
         else:
             random.seed()
 
+    def verify(
+        self,
+        height: int,
+        width: int,
+        perfect: bool,
+        entry: Sequence[int] | Tuple[int, int],
+        exit: Sequence[int] | Tuple[int, int],
+        seed: Union[int, str],
+    ) -> Optional[List[str]]:
+        errors: List[str] = []
+
+        if not isinstance(height, int) or height <= 0:
+            errors.append("height error: must be a positive int")
+
+        if not isinstance(width, int) or width <= 0:
+            errors.append("width error: must be a positive int")
+
+        if perfect not in (True, False, "True", "False"):
+            errors.append("perfect error: must be True or False")
+
+        if not isinstance(entry, (list, tuple)) or len(entry) != 2:
+            errors.append("entry error: must be two ints separated by ','")
+        else:
+            ex, ey = entry
+            if not isinstance(ex, int) or not isinstance(ey, int) \
+                    or ex < 0 or ex >= width or ey < 0 or ey >= height:
+                errors.append("entry error: coords must be within maze bounds")
+
+        if not isinstance(exit, (list, tuple)) or len(exit) != 2:
+            errors.append("exit error: must be two ints separated by ','")
+        else:
+            lx, ly = exit
+            if not isinstance(lx, int) or not isinstance(ly, int) \
+                    or lx < 0 or lx >= width or ly < 0 or ly >= height:
+                errors.append("exit error: coords must be within maze bounds")
+
+        if not isinstance(seed, (int, str)):
+            errors.append("seed error: must be an int or string")
+
+        return errors if errors else None
+    
     def write_hex(self, filename: str = "maze.txt") -> None:
         with open(filename, "w") as f:
             for row in self.list_dict:
@@ -204,7 +205,9 @@ class MazeGenerator:
                 marked += 1
         print(marked)
         self.list_dict = list_dict
-        return list_dict
+        if self.perfect is False or self.perfect == "False":
+            self.inperfect()
+        return self.list_dict
 
     def Random(self) -> str:
         choice: List[str] = []
@@ -260,3 +263,54 @@ class MazeGenerator:
         routes = self.solve()
         route = min(routes, key=len)
         return route
+
+    def inperfect(self) -> None:
+        dead_ends = []
+
+        def is_dead_end(wall: int) -> bool:
+            return wall in (0b1110, 0b1101, 0b1011, 0b0111)
+
+        for y in range(self.height):
+            for x in range(self.width):
+                cell = self.list_dict[y][x]
+                if is_dead_end(cell['walls']):
+                    dead_ends.append((x, y))
+
+        random.shuffle(dead_ends)
+        remove_walls = max(1, len(dead_ends) // 4)
+        logo_cells = {(lx, ly) for lx, ly in self.fortytwo}
+
+        for i in range(remove_walls):
+            x, y = dead_ends[i]
+            if (x, y) in logo_cells:
+                continue
+            directions = []
+            if y > 0 and self.list_dict[y][x]['walls'] & 0b0001 \
+                    and (x, y - 1) not in logo_cells:
+                directions.append('N')
+            if x < self.width - 1 and self.list_dict[y][x]['walls'] & 0b0010 \
+                    and (x + 1, y) not in logo_cells:
+                directions.append('E')
+            if y < self.height - 1 and self.list_dict[y][x]['walls'] & 0b0100 \
+                    and (x, y + 1) not in logo_cells:
+                directions.append('S')
+            if x > 0 and self.list_dict[y][x]['walls'] & 0b1000 \
+                    and (x - 1, y) not in logo_cells:
+                directions.append('W')
+
+            if not directions:
+                continue
+
+            chosen = random.choice(directions)
+            if chosen == 'N':
+                self.list_dict[y][x]['walls'] &= ~0b0001
+                self.list_dict[y - 1][x]['walls'] &= ~0b0100
+            elif chosen == 'E':
+                self.list_dict[y][x]['walls'] &= ~0b0010
+                self.list_dict[y][x + 1]['walls'] &= ~0b1000
+            elif chosen == 'S':
+                self.list_dict[y][x]['walls'] &= ~0b0100
+                self.list_dict[y + 1][x]['walls'] &= ~0b0001
+            elif chosen == 'W':
+                self.list_dict[y][x]['walls'] &= ~0b1000
+                self.list_dict[y][x - 1]['walls'] &= ~0b0010

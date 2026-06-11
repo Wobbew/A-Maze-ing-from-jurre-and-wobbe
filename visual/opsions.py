@@ -29,7 +29,7 @@ colors = {
 
 
 def ascii_output(message, sizeX, sizeY, dic):
-    global line_height, chr_weight
+    # global line_height, chr_weight
 
     window[0] = mlx.mlx_new_window(
         ptr, sizeX * chr_weight, sizeY * line_height, maze_name
@@ -195,7 +195,7 @@ def ascii_output(message, sizeX, sizeY, dic):
                 )
                 m.maze_gen()
                 m.write_hex("maze.txt")
-                route = m.solve()
+                route = m.quickest()
             except Exception as e:
                 print(f"Error occurred: {e}")
                 continue
@@ -208,12 +208,12 @@ def ascii_output(message, sizeX, sizeY, dic):
             entryY = int(entry_parts[1])
             with open("maze.txt", "a") as f:
                 f.write(
-                    "\n" + ", ".join(
+                    "\n" + ",".join(
                         str(int(v)) for v in dic.get("ENTRY").split(",")
                     )
                 )
                 f.write(
-                    "\n" + ", ".join(
+                    "\n" + ",".join(
                         str(int(v)) for v in dic.get("EXIT").split(",")
                     )
                 )

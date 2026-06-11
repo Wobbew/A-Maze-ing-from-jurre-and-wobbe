@@ -16,14 +16,17 @@ venv:
 	python3 -m venv $(VENV)
 	@echo "Virtual environment created!"
 
+
 install: venv
 	$(PIP) install --upgrade pip
 	$(PIP) install -r requirements.txt
 	$(PIP) install mlx-2.2-py3-none-any.whl
 
+
 clean:
-	find . -type d -name "__pycache__" -exec rm -rf {} +
+	find . -type d -name "pycache" -exec rm -rf {} +
 	rm -rf .mypy_cache
+
 
 run:
 	$(PYTHON) a_maze_ing.py config.txt
@@ -31,14 +34,14 @@ run:
 
 lint:
 	$(PYTHON) -m flake8 --exclude=.venv,mlx .
-	$(PYTHON) -m python3 -m mypy . \
+	$(PYTHON) -m mypy . \
 		--warn-return-any \
 		--warn-unused-ignores \
 		--ignore-missing-imports \
 		--disallow-untyped-defs \
 		--check-untyped-defs \
 		--explicit-package-bases \
-		--exclude '^(venv|\.venv|env|mlx)/'
+		--exclude '^(venv|.venv|env|mlx)/'
 
 check: lint
 	@echo "Completed checks"

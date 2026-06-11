@@ -71,10 +71,8 @@ def find_walls(p, window, mlx, ptr):
     mlx.mlx_clear_window(ptr, window)
     mlx.mlx_put_image_to_window(ptr, window, get_image(
         "images/floor and ceiling.xpm", ptr, mlx), 0, 0)
-    print(f"view: {view}\t p {p.maze[p.Y][p.X]}\t{p.facing}")
     for depth in reversed(range(len(view))):
         left, front, right = view[depth]
-        print(p.X, p.Y)
         draw_left_wall(p, depth+1, window, mlx, ptr, wall=left)
         draw_right_wall(p, depth+1, window, mlx, ptr, wall=right)
         draw_front(p, front, depth+1, window, mlx, ptr)
@@ -96,7 +94,6 @@ def draw_front(p, wall, depth, window, mlx, ptr):
     elif depth == 1 and wall:
         mlx.mlx_put_image_to_window(ptr, window, get_image(
             "images/FWall1.xpm", ptr, mlx), 0, 0)
-        print("Fwall1")
 
 
 def draw_left_wall(p, depth, window, mlx, ptr, wall=True):
@@ -128,23 +125,19 @@ def draw_left_wall(p, depth, window, mlx, ptr, wall=True):
                           facing_to_bit_mask(p.facing, "F")):
                 mlx.mlx_put_image_to_window(ptr, window, get_image(
                     "images/FWall-1 1.xpm", ptr, mlx), 0, 0)
-                print("FWall-1 1.xpm")
             elif p.get_wall(pos_cells_around(p, 1, 0, 1),
                             facing_to_bit_mask(p.facing, "L")):
                 mlx.mlx_put_image_to_window(ptr, window, get_image(
                     "images/LWall-1 2.xpm", ptr, mlx), 0, 0)
-                print("FWall-1 2.xpm")
             else:
                 if p.get_wall(pos_cells_around(p, 2, 0, 1),
                               facing_to_bit_mask(p.facing, "L")):
                     mlx.mlx_put_image_to_window(ptr, window, get_image(
                         "images/LWall-2 2.xpm", ptr, mlx), 0, 0)
-                    print("LWall-2 2.xpm")
                 if p.get_wall(pos_cells_around(p, 2, 0, 1),
                               facing_to_bit_mask(p.facing, "F")):
                     mlx.mlx_put_image_to_window(ptr, window, get_image(
                         "images/FWall-2 2.xpm", ptr, mlx), 0, 0)
-                    print("FWall-2 2.xpm")
 
 
 def draw_right_wall(p, depth, window, mlx, ptr, wall=True):
@@ -220,9 +213,7 @@ def is_end(pos: tuple[int, int], exit) -> bool:
     end_y = exit[1]
     pos_x, pos_y = pos
     if pos_x == end_x and pos_y == end_y:
-        print("End", pos)
         return True
-    print("not", pos_x, pos_y, "is", end_x, end_y)
     return False
 
 

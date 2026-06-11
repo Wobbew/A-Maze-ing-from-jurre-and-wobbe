@@ -76,8 +76,8 @@ if __name__ == "__main__":
         m.write_hex(output_file)
         route = m.quickest()
         with open(output_file, "a") as f:
-            f.write("\n" + ", ".join(str(int(v)) for v in entry))
-            f.write("\n" + ", ".join(str(int(v)) for v in exit_coord))
+            f.write("\n" + ",".join(str(int(v)) for v in entry))
+            f.write("\n" + ",".join(str(int(v)) for v in exit_coord))
             f.write("\n" + "".join(route))
         print("Maze generated and written to", output_file)
     except Exception as e:
