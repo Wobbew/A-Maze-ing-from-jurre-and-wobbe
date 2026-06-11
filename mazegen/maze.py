@@ -19,7 +19,8 @@ class MazeGenerator:
         self.perfect = perfect
         self.entry = entry
         self.exit = exit
-        self.error_meg = None
+        self.error_meg: Optional[str] = None
+        self.fortytwo: List[List[int]] = []
         if seed != "0":
             random.seed(seed)
         else:
@@ -238,7 +239,13 @@ class MazeGenerator:
             print("Error: No more options available")
         return routes
 
-    def _explore(self, location, loc_route, route, routes) -> None:
+    def explore(
+        self,
+        location: Tuple[int, int],
+        loc_route: List[Tuple[int, int]],
+        route: List[str],
+        routes: List[List[str]],
+    ) -> None:
         if location == self.exit:
             routes.append(route.copy())
             return
@@ -247,11 +254,15 @@ class MazeGenerator:
             nxt = (location[0] + dx, location[1] + dy)
             loc_route.append(nxt)
             route.append(direction)
-            self._explore(nxt, loc_route, route, routes)
-            loc_route.pop()   # backtrack: free the cell for other branches
+            self.explore(nxt, loc_route, route, routes)
+            loc_route.pop()
             route.pop()
 
-    def options(self, location, loc_route) -> List[str]:
+    def options(
+        self,
+        location: Tuple[int, int],
+        loc_route: List[Tuple[int, int]],
+    ) -> List[str]:
         x, y = location
         opts = []
         for direction, (dx, dy) in self.moves.items():
@@ -260,7 +271,7 @@ class MazeGenerator:
                 opts.append(direction)
         return opts
 
-    def quickest(self) -> list:
+    def quickest(self) -> List[str]:
         routes = self.solve()
         route = min(routes, key=len)
         return route
