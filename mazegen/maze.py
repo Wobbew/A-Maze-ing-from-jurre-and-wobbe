@@ -1,4 +1,5 @@
 import random
+from collections import deque
 from typing import List, Tuple, Dict, Any, Optional, Sequence, Union
 
 
@@ -234,29 +235,41 @@ class MazeGenerator:
         self.moves = moves
         self.wall_bits = wall_bits
         routes: List[List[str]] = []
-        self.explore(self.entry, [self.entry], [], routes)
+        self.explore((self.entry[0], self.entry[1]), routes)
         if not routes:
             print("Error: No more options available")
         return routes
 
     def explore(
         self,
-        location: Tuple[int, int],
-        loc_route: List[Tuple[int, int]],
-        route: List[str],
+        start: Tuple[int, int],
         routes: List[List[str]],
     ) -> None:
-        if location == self.exit:
-            routes.append(route.copy())
-            return
-        for direction in self.options(location, loc_route):
+        goal = (self.exit[0], self.exit[1])
+        loc_route: List[Tuple[int, int]] = [start]
+        route: List[str] = []
+        pending = [iter(self.options(start, loc_route))]
+        while pending:
+            location = loc_route[-1]
+            if location == goal:
+                routes.append(route.copy())
+                pending.pop()
+                loc_route.pop()
+                if route:
+                    route.pop()
+                continue
+            direction = next(pending[-1], None)
+            if direction is None:
+                pending.pop()
+                loc_route.pop()
+                if route:
+                    route.pop()
+                continue
             dx, dy = self.moves[direction]
             nxt = (location[0] + dx, location[1] + dy)
             loc_route.append(nxt)
             route.append(direction)
-            self.explore(nxt, loc_route, route, routes)
-            loc_route.pop()
-            route.pop()
+            pending.append(iter(self.options(nxt, loc_route)))
 
     def options(
         self,
@@ -272,8 +285,35 @@ class MazeGenerator:
         return opts
 
     def quickest(self) -> List[str]:
-        routes = self.solve()
-        route = min(routes, key=len)
+        moves = {"N": (0, -1), "E": (1, 0), "S": (0, 1), "W": (-1, 0)}
+        wall_bits = {"N": 0b0001, "E": 0b0010, "S": 0b0100, "W": 0b1000}
+        start = (self.entry[0], self.entry[1])
+        goal = (self.exit[0], self.exit[1])
+        prev: Dict[Tuple[int, int], Tuple[Tuple[int, int], str]] = {}
+        seen = {start}
+        queue = deque([start])
+        while queue:
+            current = queue.popleft()
+            if current == goal:
+                break
+            x, y = current
+            for direction, (dx, dy) in moves.items():
+                if self.list_dict[y][x]["walls"] & wall_bits[direction]:
+                    continue
+                nxt = (x + dx, y + dy)
+                if nxt not in seen:
+                    seen.add(nxt)
+                    prev[nxt] = (current, direction)
+                    queue.append(nxt)
+        if goal not in seen:
+            print("Error: No more options available")
+            return []
+        route: List[str] = []
+        node = goal
+        while node != start:
+            node, direction = prev[node]
+            route.append(direction)
+        route.reverse()
         return route
 
     def inperfect(self) -> None:
