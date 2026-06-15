@@ -54,10 +54,10 @@ def ascii_output(
 
         mlx.mlx_clear_window(ptr, window[0])
         for _ in range(2):
-            for idx, row in enumerate(message):
+            for i, row in enumerate(message):
                 line = "".join(str(cell) for cell in row)
                 mlx.mlx_string_put(
-                    ptr, window[0], 0, idx * line_height, color[0], line
+                    ptr, window[0], 0, i * line_height, color[0], line
                 )
         mlx.mlx_string_put(
             ptr, window[0],
@@ -75,10 +75,10 @@ def ascii_output(
         if path_is[1]:
             vis: VisMaze = path_is[2]  # type: ignore[assignment]
             for _ in range(2):
-                for idx, row in enumerate(vis):
+                for i, row in enumerate(vis):
                     line = "".join(str(cell) for cell in row)
                     mlx.mlx_string_put(
-                        ptr, window[0], 0, idx * line_height, color[1], line
+                        ptr, window[0], 0, i * line_height, color[1], line
                     )
 
     mlx.mlx_loop_hook(ptr, render, None)
@@ -105,17 +105,17 @@ def ascii_output(
             break
         if choice == "2":
             while True:
-                j = input(
+                tmp = input(
                     "1. white\n2. red\n3. green\n4. blue\n"
                     "5. yellow\n6. cyan\n7. magenta\n8. gray\nEnter: "
                 )
-                if not j.isdigit() or int(j) not in range(
+                if not tmp.isdigit() or int(tmp) not in range(
                     1, len(color_names) + 1
                 ):
-                    print(f"{j} is not a valid option")
+                    print(f"{tmp} is not a valid option")
                 else:
-                    color[0] = colors[color_names[int(j) - 1]]
-                    color[1] = colors[color_names[int(j) % len(color_names)]]
+                    color[0] = colors[color_names[int(tmp) - 1]]
+                    color[1] = colors[color_names[int(tmp) % len(color_names)]]
                     needs_redraw[0] = True
                     break
         if choice == "3":
@@ -134,7 +134,7 @@ def ascii_output(
             mlx.mlx_loop_exit(ptr)
             t.join()
             try:
-                if input("want to change the settings (Y/N): ") == "Y":
+                if input("want to change the settings (y): ") == "y":
                     tmp = input(
                         f"current height is {dic.get('HEIGHT')}."
                         " Enter the height: "

@@ -7,7 +7,7 @@ from visual import ascii_output
 
 
 def parse_config(path: str) -> Dict[str, str]:
-    d: Dict[str, str] = {}
+    dic: Dict[str, str] = {}
     with open(path, "r") as f:
         for raw in f:
             line = raw.strip()
@@ -15,9 +15,14 @@ def parse_config(path: str) -> Dict[str, str]:
                 continue
             if "=" not in line:
                 continue
+            if " " in line:
+                for part in line.split():
+                    if "=" in part:
+                        line = part
+                        break
             key, val = line.split("=", 1)
-            d[key.strip()] = val.strip()
-    return d
+            dic[key.strip()] = val.strip()
+    return dic
 
 
 def parse_bool(val: str) -> bool:
@@ -47,7 +52,10 @@ if __name__ == "__main__":
     except FileNotFoundError:
         print("File not found")
         sys.exit(2)
-    required = ("WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT")
+    required = (
+        "WIDTH", "HEIGHT", "ENTRY", "EXIT",
+        "OUTPUT_FILE", "PERFECT", "SEED"
+    )
     missing = [k for k in required if k not in dic]
     if missing:
         print("Missing config keys:", ", ".join(missing))
@@ -66,7 +74,6 @@ if __name__ == "__main__":
         sys.exit(2)
 
     try:
-        print("Generating maze...")
         m = MazeGenerator(height, width, perfect, entry, exit_coord, seed)
         m.maze_gen()
         m.write_hex(output_file)
@@ -75,7 +82,6 @@ if __name__ == "__main__":
             f.write("\n" + ",".join(str(int(v)) for v in entry))
             f.write("\n" + ",".join(str(int(v)) for v in exit_coord))
             f.write("\n" + "".join(route))
-        print("Maze generated and written to", output_file)
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)

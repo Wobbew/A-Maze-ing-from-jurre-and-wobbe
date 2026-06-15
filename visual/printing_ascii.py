@@ -8,7 +8,6 @@ def render_cell(
     vis_maze: VisMaze,
     i: int,
     j: int,
-    mode: str = "ascii",
 ) -> VisMaze:
     walls = [False, False, False, False]
     if num >= 8:
@@ -23,8 +22,7 @@ def render_cell(
     if num >= 1:
         num -= 1
         walls[0] = True
-    if mode == "ascii":
-        vis_maze = place_ascii(walls, vis_maze, i, j)
+    vis_maze = place_ascii(walls, vis_maze, i, j)
     return vis_maze
 
 
@@ -65,10 +63,6 @@ def place_ascii(
     if walls[0] and walls[1] and walls[2] and walls[3]:
         vis_maze[top + 1][left + 1] = '+'
     return vis_maze
-
-
-def place_mlx(walls: list[bool]) -> None:
-    pass
 
 
 def make_canvas() -> tuple[VisMaze, int, int]:
