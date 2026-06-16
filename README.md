@@ -327,5 +327,5 @@ AI was used for specific, well-defined tasks that were reviewed and validated by
 
 1. **Documentation Generation**: Creating docstrings and README sections
 2. **Type Annotation Support**: Suggesting type hints and mypy configurations
-
+3. **resrg and brain storming**: 
 

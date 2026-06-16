@@ -24,7 +24,7 @@ install: venv
 
 
 clean:
-	find . -type d -name "pycache" -exec rm -rf {} +
+	find . -type d -name "__pycache__" -exec rm -rf {} +
 	rm -rf .mypy_cache
 
 

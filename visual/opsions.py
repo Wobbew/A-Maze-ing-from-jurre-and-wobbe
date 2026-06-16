@@ -107,7 +107,7 @@ def ascii_output(
             while True:
                 tmp = input(
                     "1. white\n2. red\n3. green\n4. blue\n"
-                    "5. yellow\n6. cyan\n7. magenta\n8. gray\nEnter: "
+                    "5. cyan\n6. yellow\n7. magenta\n8. gray\nEnter: "
                 )
                 if not tmp.isdigit() or int(tmp) not in range(
                     1, len(color_names) + 1
@@ -175,8 +175,8 @@ def ascii_output(
                         print("not a valid input")
                     if input(
                         f"current perfect is {dic.get('PERFECT')}."
-                        " Enter 'Y' to change: "
-                    ) == "Y":
+                        " Enter 'y' to change: "
+                    ) == "y":
                         dic["PERFECT"] = (
                             "False" if dic["PERFECT"] == "True" else "True"
                         )
@@ -188,13 +188,6 @@ def ascii_output(
                         dic["SEED"] = tmp
                     else:
                         print("not a valid input")
-
-                perf_raw = dic.get("PERFECT")
-                perf_val = (
-                    str(perf_raw).strip().lower() in ("true")
-                    if perf_raw is not None
-                    else False
-                )
 
                 entry_xy: tuple[int, int] = (
                     int(dic["ENTRY"].split(",")[0]),
@@ -208,7 +201,7 @@ def ascii_output(
                 m = MazeGenerator(
                     int(dic["HEIGHT"]),
                     int(dic["WIDTH"]),
-                    perf_val,
+                    str(dic.get("PERFECT")),
                     entry_xy,
                     exit_xy,
                     seed,
